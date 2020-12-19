@@ -1,0 +1,349 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"pila.c"
+  21              	.Ltext0:
+  22              		.file 1 "../pila.c"
+ 1240              		.align	2
+ 1243              	stack_pointer:
+ 1244 0000 00F67F0C 		.word	209712640
+ 1245              		.text
+ 1246              		.align	2
+ 1247              		.global	reset_pila
+ 1249              	reset_pila:
+ 1250              	.LFB0:
+   1:../pila.c     **** 
+   2:../pila.c     **** /*--- ficheros de cabecera ---*/
+   3:../pila.c     **** #include "pila.h"
+   4:../pila.c     **** #include "timer2.h"
+   5:../pila.c     **** #include "reversi8.h"
+   6:../pila.c     **** 
+   7:../pila.c     **** #define STACK_INIT 0x0c7ff600;							// Al principio apunta al comienzo de las pilas
+   8:../pila.c     **** 														// de los distintos modos de ejecución y va creciendo hacia arriba
+   9:../pila.c     **** #define STACK_END 0x0c7ff400;		// Dejamos 256B de espacio para nuestra pila
+  10:../pila.c     **** 
+  11:../pila.c     **** 
+  12:../pila.c     **** /*	------ PILA ------
+  13:../pila.c     ****  * 32b:   TIEMPO
+  14:../pila.c     ****  * 32b: ID | aux_Data
+  15:../pila.c     ****  * -------------------
+  16:../pila.c     ****  *
+  17:../pila.c     ****  * 32 bits para tiempo
+  18:../pila.c     ****  * 8 bits para ID_Evento
+  19:../pila.c     ****  * 24 bits para aux_Data
+  20:../pila.c     ****  *
+  21:../pila.c     ****  */
+  22:../pila.c     **** 
+  23:../pila.c     **** static volatile uint32_t* stack_pointer = STACK_INIT;    // Puntero de pila.
+  24:../pila.c     **** //void push_debug(void) __attribute__((interrupt("IRQ"))); // Debería hacer falta?
+  25:../pila.c     **** 
+  26:../pila.c     **** /*--- variables globales ELIMINAR!
+  27:../pila.c     **** // static uint32_t* pos;						// Puntero utilizado internamente para guardar datos en la pila
+  28:../pila.c     **** 
+  29:../pila.c     **** /*--- codigo de las funciones ---*/
+  30:../pila.c     **** void reset_pila()
+  31:../pila.c     **** {
+ 1251              		.loc 1 31 0
+ 1252              		.cfi_startproc
+ 1253              		@ Function supports interworking.
+ 1254              		@ args = 0, pretend = 0, frame = 0
+ 1255              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1256 0000 0DC0A0E1 		mov	ip, sp
+ 1257              	.LCFI0:
+ 1258              		.cfi_def_cfa_register 12
+ 1259 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1260 0008 04B04CE2 		sub	fp, ip, #4
+ 1261              		.cfi_offset 14, -8
+ 1262              		.cfi_offset 13, -12
+ 1263              		.cfi_offset 11, -16
+ 1264              	.LCFI1:
+ 1265              		.cfi_def_cfa 11, 4
+  32:../pila.c     **** 	stack_pointer = STACK_INIT;
+ 1266              		.loc 1 32 0
+ 1267 000c 10309FE5 		ldr	r3, .L2
+ 1268 0010 10209FE5 		ldr	r2, .L2+4
+ 1269 0014 002083E5 		str	r2, [r3, #0]
+  33:../pila.c     **** }
+ 1270              		.loc 1 33 0
+ 1271 0018 0CD04BE2 		sub	sp, fp, #12
+ 1272 001c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1273 0020 1EFF2FE1 		bx	lr
+ 1274              	.L3:
+ 1275              		.align	2
+ 1276              	.L2:
+ 1277 0024 00000000 		.word	stack_pointer
+ 1278 0028 00F67F0C 		.word	209712640
+ 1279              		.cfi_endproc
+ 1280              	.LFE0:
+ 1282              		.align	2
+ 1283              		.global	push_debug
+ 1285              	push_debug:
+ 1286              	.LFB1:
+  34:../pila.c     **** 
+  35:../pila.c     **** // ID_evento = bits 0-7
+  36:../pila.c     **** // auxData = bits 0-23
+  37:../pila.c     **** void push_debug(uint8_t ID_evento, uint32_t auxData)
+  38:../pila.c     **** {
+ 1287              		.loc 1 38 0
+ 1288              		.cfi_startproc
+ 1289              		@ Function supports interworking.
+ 1290              		@ args = 0, pretend = 0, frame = 16
+ 1291              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1292 002c 0DC0A0E1 		mov	ip, sp
+ 1293              	.LCFI2:
+ 1294              		.cfi_def_cfa_register 12
+ 1295 0030 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1296 0034 04B04CE2 		sub	fp, ip, #4
+ 1297              		.cfi_offset 14, -8
+ 1298              		.cfi_offset 13, -12
+ 1299              		.cfi_offset 11, -16
+ 1300              	.LCFI3:
+ 1301              		.cfi_def_cfa 11, 4
+ 1302 0038 10D04DE2 		sub	sp, sp, #16
+ 1303 003c 0030A0E1 		mov	r3, r0
+ 1304 0040 1C100BE5 		str	r1, [fp, #-28]
+ 1305 0044 15304BE5 		strb	r3, [fp, #-21]
+  39:../pila.c     **** 	uint32_t tiempo = timer2_leer(); // tiempo en microsegundos cuando ocurre
+ 1306              		.loc 1 39 0
+ 1307 0048 FEFFFFEB 		bl	timer2_leer
+ 1308 004c 10000BE5 		str	r0, [fp, #-16]
+  40:../pila.c     **** 
+  41:../pila.c     **** 	if (stack_pointer == 0x0c7ff400) {
+ 1309              		.loc 1 41 0
+ 1310 0050 74309FE5 		ldr	r3, .L6
+ 1311 0054 002093E5 		ldr	r2, [r3, #0]
+ 1312 0058 70309FE5 		ldr	r3, .L6+4
+ 1313 005c 030052E1 		cmp	r2, r3
+ 1314 0060 0000001A 		bne	.L5
+  42:../pila.c     **** 		reset_pila();
+ 1315              		.loc 1 42 0
+ 1316 0064 FEFFFFEB 		bl	reset_pila
+ 1317              	.L5:
+  43:../pila.c     **** 	}
+  44:../pila.c     **** 
+  45:../pila.c     **** 	stack_pointer--; // Dejamos hueco para poner ID_evento y AuxData
+ 1318              		.loc 1 45 0
+ 1319 0068 5C309FE5 		ldr	r3, .L6
+ 1320 006c 003093E5 		ldr	r3, [r3, #0]
+ 1321 0070 042043E2 		sub	r2, r3, #4
+ 1322 0074 50309FE5 		ldr	r3, .L6
+ 1323 0078 002083E5 		str	r2, [r3, #0]
+  46:../pila.c     **** 
+  47:../pila.c     **** 	/*
+  48:../pila.c     ****     * Desplazamos ID_evento 24 bits para que ocupe los 8 bits más significativos
+  49:../pila.c     **** 	* y concatenamos con los 24 bits de auxData para formar la palabra de 32 bits.
+  50:../pila.c     **** 	* De tal forma: [ ID (8 bits) + auxData (24 bits) ] = 32 bits.
+  51:../pila.c     **** 	*/
+  52:../pila.c     **** 
+  53:../pila.c     **** 	*stack_pointer = (ID_evento << 24) | auxData;
+ 1324              		.loc 1 53 0
+ 1325 007c 48309FE5 		ldr	r3, .L6
+ 1326 0080 003093E5 		ldr	r3, [r3, #0]
+ 1327 0084 15205BE5 		ldrb	r2, [fp, #-21]	@ zero_extendqisi2
+ 1328 0088 022CA0E1 		mov	r2, r2, asl #24
+ 1329 008c 0210A0E1 		mov	r1, r2
+ 1330 0090 1C201BE5 		ldr	r2, [fp, #-28]
+ 1331 0094 022081E1 		orr	r2, r1, r2
+ 1332 0098 002083E5 		str	r2, [r3, #0]
+  54:../pila.c     **** 	stack_pointer--; // Dejamos hueco para poner el tiempo (32 bits)
+ 1333              		.loc 1 54 0
+ 1334 009c 28309FE5 		ldr	r3, .L6
+ 1335 00a0 003093E5 		ldr	r3, [r3, #0]
+ 1336 00a4 042043E2 		sub	r2, r3, #4
+ 1337 00a8 1C309FE5 		ldr	r3, .L6
+ 1338 00ac 002083E5 		str	r2, [r3, #0]
+  55:../pila.c     **** 	*stack_pointer = tiempo;
+ 1339              		.loc 1 55 0
+ 1340 00b0 14309FE5 		ldr	r3, .L6
+ 1341 00b4 003093E5 		ldr	r3, [r3, #0]
+ 1342 00b8 10201BE5 		ldr	r2, [fp, #-16]
+ 1343 00bc 002083E5 		str	r2, [r3, #0]
+  56:../pila.c     **** 
+  57:../pila.c     **** }
+ 1344              		.loc 1 57 0
+ 1345 00c0 0CD04BE2 		sub	sp, fp, #12
+ 1346 00c4 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1347 00c8 1EFF2FE1 		bx	lr
+ 1348              	.L7:
+ 1349              		.align	2
+ 1350              	.L6:
+ 1351 00cc 00000000 		.word	stack_pointer
+ 1352 00d0 00F47F0C 		.word	209712128
+ 1353              		.cfi_endproc
+ 1354              	.LFE1:
+ 1356              		.align	2
+ 1357              		.global	hay_eventos_encolados
+ 1359              	hay_eventos_encolados:
+ 1360              	.LFB2:
+  58:../pila.c     **** 
+  59:../pila.c     **** int hay_eventos_encolados(uint32_t stack_anterior) {
+ 1361              		.loc 1 59 0
+ 1362              		.cfi_startproc
+ 1363              		@ Function supports interworking.
+ 1364              		@ args = 0, pretend = 0, frame = 8
+ 1365              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1366 00d4 0DC0A0E1 		mov	ip, sp
+ 1367              	.LCFI4:
+ 1368              		.cfi_def_cfa_register 12
+ 1369 00d8 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1370 00dc 04B04CE2 		sub	fp, ip, #4
+ 1371              		.cfi_offset 14, -8
+ 1372              		.cfi_offset 13, -12
+ 1373              		.cfi_offset 11, -16
+ 1374              	.LCFI5:
+ 1375              		.cfi_def_cfa 11, 4
+ 1376 00e0 08D04DE2 		sub	sp, sp, #8
+ 1377 00e4 10000BE5 		str	r0, [fp, #-16]
+  60:../pila.c     **** 	if (stack_pointer == (stack_anterior + 4)) { // +4 para alinear con Stack Pointer
+ 1378              		.loc 1 60 0
+ 1379 00e8 10301BE5 		ldr	r3, [fp, #-16]
+ 1380 00ec 043083E2 		add	r3, r3, #4
+ 1381 00f0 0320A0E1 		mov	r2, r3
+ 1382 00f4 24309FE5 		ldr	r3, .L11
+ 1383 00f8 003093E5 		ldr	r3, [r3, #0]
+ 1384 00fc 030052E1 		cmp	r2, r3
+ 1385 0100 0100001A 		bne	.L9
+  61:../pila.c     **** 		return 0;
+ 1386              		.loc 1 61 0
+ 1387 0104 0030A0E3 		mov	r3, #0
+ 1388 0108 000000EA 		b	.L10
+ 1389              	.L9:
+  62:../pila.c     **** 	}
+  63:../pila.c     **** 
+  64:../pila.c     **** 	return 1;
+ 1390              		.loc 1 64 0
+ 1391 010c 0130A0E3 		mov	r3, #1
+ 1392              	.L10:
+  65:../pila.c     **** }
+ 1393              		.loc 1 65 0
+ 1394 0110 0300A0E1 		mov	r0, r3
+ 1395 0114 0CD04BE2 		sub	sp, fp, #12
+ 1396 0118 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1397 011c 1EFF2FE1 		bx	lr
+ 1398              	.L12:
+ 1399              		.align	2
+ 1400              	.L11:
+ 1401 0120 00000000 		.word	stack_pointer
+ 1402              		.cfi_endproc
+ 1403              	.LFE2:
+ 1405              		.align	2
+ 1406              		.global	leer_evento
+ 1408              	leer_evento:
+ 1409              	.LFB3:
+  66:../pila.c     **** 
+  67:../pila.c     **** uint32_t leer_evento(uint32_t stack_anterior) {
+ 1410              		.loc 1 67 0
+ 1411              		.cfi_startproc
+ 1412              		@ Function supports interworking.
+ 1413              		@ args = 0, pretend = 0, frame = 8
+ 1414              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1415 0124 0DC0A0E1 		mov	ip, sp
+ 1416              	.LCFI6:
+ 1417              		.cfi_def_cfa_register 12
+ 1418 0128 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1419 012c 04B04CE2 		sub	fp, ip, #4
+ 1420              		.cfi_offset 14, -8
+ 1421              		.cfi_offset 13, -12
+ 1422              		.cfi_offset 11, -16
+ 1423              	.LCFI7:
+ 1424              		.cfi_def_cfa 11, 4
+ 1425 0130 08D04DE2 		sub	sp, sp, #8
+ 1426 0134 10000BE5 		str	r0, [fp, #-16]
+  68:../pila.c     **** 	if (stack_anterior == 0x0c7ff404) { // 0x0c7ff504 = Stack End + 4
+ 1427              		.loc 1 68 0
+ 1428 0138 10201BE5 		ldr	r2, [fp, #-16]
+ 1429 013c 20309FE5 		ldr	r3, .L15
+ 1430 0140 030052E1 		cmp	r2, r3
+ 1431 0144 0100001A 		bne	.L14
+  69:../pila.c     **** 		stack_anterior = STACK_INIT;
+ 1432              		.loc 1 69 0
+ 1433 0148 18309FE5 		ldr	r3, .L15+4
+ 1434 014c 10300BE5 		str	r3, [fp, #-16]
+ 1435              	.L14:
+  70:../pila.c     **** 	}
+  71:../pila.c     **** 
+  72:../pila.c     **** 	return stack_anterior;
+ 1436              		.loc 1 72 0
+ 1437 0150 10301BE5 		ldr	r3, [fp, #-16]
+  73:../pila.c     **** }
+ 1438              		.loc 1 73 0
+ 1439 0154 0300A0E1 		mov	r0, r3
+ 1440 0158 0CD04BE2 		sub	sp, fp, #12
+ 1441 015c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1442 0160 1EFF2FE1 		bx	lr
+ 1443              	.L16:
+ 1444              		.align	2
+ 1445              	.L15:
+ 1446 0164 04F47F0C 		.word	209712132
+ 1447 0168 00F67F0C 		.word	209712640
+ 1448              		.cfi_endproc
+ 1449              	.LFE3:
+ 1451              		.align	2
+ 1452              		.global	asignar_stack
+ 1454              	asignar_stack:
+ 1455              	.LFB4:
+  74:../pila.c     **** 
+  75:../pila.c     **** uint32_t asignar_stack() {
+ 1456              		.loc 1 75 0
+ 1457              		.cfi_startproc
+ 1458              		@ Function supports interworking.
+ 1459              		@ args = 0, pretend = 0, frame = 0
+ 1460              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1461 016c 0DC0A0E1 		mov	ip, sp
+ 1462              	.LCFI8:
+ 1463              		.cfi_def_cfa_register 12
+ 1464 0170 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1465 0174 04B04CE2 		sub	fp, ip, #4
+ 1466              		.cfi_offset 14, -8
+ 1467              		.cfi_offset 13, -12
+ 1468              		.cfi_offset 11, -16
+ 1469              	.LCFI9:
+ 1470              		.cfi_def_cfa 11, 4
+  76:../pila.c     **** 	return stack_pointer;
+ 1471              		.loc 1 76 0
+ 1472 0178 10309FE5 		ldr	r3, .L18
+ 1473 017c 003093E5 		ldr	r3, [r3, #0]
+  77:../pila.c     **** }
+ 1474              		.loc 1 77 0
+ 1475 0180 0300A0E1 		mov	r0, r3
+ 1476 0184 0CD04BE2 		sub	sp, fp, #12
+ 1477 0188 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1478 018c 1EFF2FE1 		bx	lr
+ 1479              	.L19:
+ 1480              		.align	2
+ 1481              	.L18:
+ 1482 0190 00000000 		.word	stack_pointer
+ 1483              		.cfi_endproc
+ 1484              	.LFE4:
+ 1486              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 pila.c
+                            *COM*:00000004 switch_leds
+C:\Users\danie\AppData\Local\Temp\ccBdF7Im.s:1240   .data:00000000 $d
+C:\Users\danie\AppData\Local\Temp\ccBdF7Im.s:1243   .data:00000000 stack_pointer
+C:\Users\danie\AppData\Local\Temp\ccBdF7Im.s:1246   .text:00000000 $a
+C:\Users\danie\AppData\Local\Temp\ccBdF7Im.s:1249   .text:00000000 reset_pila
+C:\Users\danie\AppData\Local\Temp\ccBdF7Im.s:1277   .text:00000024 $d
+C:\Users\danie\AppData\Local\Temp\ccBdF7Im.s:1282   .text:0000002c $a
+C:\Users\danie\AppData\Local\Temp\ccBdF7Im.s:1285   .text:0000002c push_debug
+C:\Users\danie\AppData\Local\Temp\ccBdF7Im.s:1351   .text:000000cc $d
+C:\Users\danie\AppData\Local\Temp\ccBdF7Im.s:1356   .text:000000d4 $a
+C:\Users\danie\AppData\Local\Temp\ccBdF7Im.s:1359   .text:000000d4 hay_eventos_encolados
+C:\Users\danie\AppData\Local\Temp\ccBdF7Im.s:1401   .text:00000120 $d
+C:\Users\danie\AppData\Local\Temp\ccBdF7Im.s:1405   .text:00000124 $a
+C:\Users\danie\AppData\Local\Temp\ccBdF7Im.s:1408   .text:00000124 leer_evento
+C:\Users\danie\AppData\Local\Temp\ccBdF7Im.s:1446   .text:00000164 $d
+C:\Users\danie\AppData\Local\Temp\ccBdF7Im.s:1451   .text:0000016c $a
+C:\Users\danie\AppData\Local\Temp\ccBdF7Im.s:1454   .text:0000016c asignar_stack
+C:\Users\danie\AppData\Local\Temp\ccBdF7Im.s:1482   .text:00000190 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+timer2_leer

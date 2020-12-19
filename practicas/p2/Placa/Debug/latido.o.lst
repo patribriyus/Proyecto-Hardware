@@ -1,0 +1,160 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"latido.c"
+  21              	.Ltext0:
+  22              		.file 1 "../latido.c"
+ 2231              		.align	2
+ 2232              	interrupciones:
+ 2233 0000 00000000 		.space	4
+ 2234              		.data
+ 2237              	estado_actual_led:
+ 2238 0000 01       		.byte	1
+ 2239              		.text
+ 2240              		.align	2
+ 2241              		.global	Latido_ev_new_tick
+ 2243              	Latido_ev_new_tick:
+ 2244              	.LFB0:
+   1:../latido.c   **** #include "latido.h"
+   2:../latido.c   **** #include "led.h"
+   3:../latido.c   **** #include "timer1.h"
+   4:../latido.c   **** #include "stdio.h"
+   5:../latido.c   **** 
+   6:../latido.c   **** static volatile int interrupciones = 0;
+   7:../latido.c   **** static volatile enum estado_led {led_on, led_off};
+   8:../latido.c   **** static volatile enum estado_led estado_actual_led = led_off;
+   9:../latido.c   **** 
+  10:../latido.c   **** void Latido_ev_new_tick(void) {
+ 2245              		.loc 1 10 0
+ 2246              		.cfi_startproc
+ 2247              		@ Function supports interworking.
+ 2248              		@ args = 0, pretend = 0, frame = 0
+ 2249              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2250 0000 0DC0A0E1 		mov	ip, sp
+ 2251              	.LCFI0:
+ 2252              		.cfi_def_cfa_register 12
+ 2253 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2254 0008 04B04CE2 		sub	fp, ip, #4
+ 2255              		.cfi_offset 14, -8
+ 2256              		.cfi_offset 13, -12
+ 2257              		.cfi_offset 11, -16
+ 2258              	.LCFI1:
+ 2259              		.cfi_def_cfa 11, 4
+  11:../latido.c   ****     interrupciones++;
+ 2260              		.loc 1 11 0
+ 2261 000c 98309FE5 		ldr	r3, .L4
+ 2262 0010 003093E5 		ldr	r3, [r3, #0]
+ 2263 0014 012083E2 		add	r2, r3, #1
+ 2264 0018 8C309FE5 		ldr	r3, .L4
+ 2265 001c 002083E5 		str	r2, [r3, #0]
+  12:../latido.c   **** 
+  13:../latido.c   **** 	if (estado_actual_led == led_on) {
+ 2266              		.loc 1 13 0
+ 2267 0020 88309FE5 		ldr	r3, .L4+4
+ 2268 0024 0030D3E5 		ldrb	r3, [r3, #0]
+ 2269 0028 FF3003E2 		and	r3, r3, #255
+ 2270 002c 000053E3 		cmp	r3, #0
+ 2271 0030 0A00001A 		bne	.L2
+  14:../latido.c   **** 		if(interrupciones == 7) { // 7 interrupciones para apagar el LED
+ 2272              		.loc 1 14 0
+ 2273 0034 70309FE5 		ldr	r3, .L4
+ 2274 0038 003093E5 		ldr	r3, [r3, #0]
+ 2275 003c 070053E3 		cmp	r3, #7
+ 2276 0040 0600001A 		bne	.L2
+  15:../latido.c   **** 			led1_off();
+ 2277              		.loc 1 15 0
+ 2278 0044 FEFFFFEB 		bl	led1_off
+  16:../latido.c   **** 			estado_actual_led = led_off;
+ 2279              		.loc 1 16 0
+ 2280 0048 60309FE5 		ldr	r3, .L4+4
+ 2281 004c 0120A0E3 		mov	r2, #1
+ 2282 0050 0020C3E5 		strb	r2, [r3, #0]
+  17:../latido.c   **** 			interrupciones = 0;
+ 2283              		.loc 1 17 0
+ 2284 0054 50309FE5 		ldr	r3, .L4
+ 2285 0058 0020A0E3 		mov	r2, #0
+ 2286 005c 002083E5 		str	r2, [r3, #0]
+ 2287              	.L2:
+  18:../latido.c   **** 			//timer1_empezar();
+  19:../latido.c   **** 		}
+  20:../latido.c   **** /**		if (interrupciones == 8) { // 8 interrupciones para encender el LED
+  21:../latido.c   **** 			if (estado_actual_led == led_off) {
+  22:../latido.c   **** 				led1_on();
+  23:../latido.c   **** 				estado_actual_led = led_on;
+  24:../latido.c   **** 				interrupciones = 0;
+  25:../latido.c   **** 				//timer1_empezar();
+  26:../latido.c   **** 			}
+  27:../latido.c   **** 		}*/
+  28:../latido.c   ****     }
+  29:../latido.c   **** 	if (estado_actual_led == led_off) {
+ 2288              		.loc 1 29 0
+ 2289 0060 48309FE5 		ldr	r3, .L4+4
+ 2290 0064 0030D3E5 		ldrb	r3, [r3, #0]
+ 2291 0068 FF3003E2 		and	r3, r3, #255
+ 2292 006c 010053E3 		cmp	r3, #1
+ 2293 0070 0A00001A 		bne	.L1
+  30:../latido.c   **** 		if(interrupciones == 8) { // 7 interrupciones para apagar el LED
+ 2294              		.loc 1 30 0
+ 2295 0074 30309FE5 		ldr	r3, .L4
+ 2296 0078 003093E5 		ldr	r3, [r3, #0]
+ 2297 007c 080053E3 		cmp	r3, #8
+ 2298 0080 0600001A 		bne	.L1
+  31:../latido.c   **** 			led1_on();
+ 2299              		.loc 1 31 0
+ 2300 0084 FEFFFFEB 		bl	led1_on
+  32:../latido.c   **** 			estado_actual_led = led_on;
+ 2301              		.loc 1 32 0
+ 2302 0088 20309FE5 		ldr	r3, .L4+4
+ 2303 008c 0020A0E3 		mov	r2, #0
+ 2304 0090 0020C3E5 		strb	r2, [r3, #0]
+  33:../latido.c   **** 			interrupciones = 0;
+ 2305              		.loc 1 33 0
+ 2306 0094 10309FE5 		ldr	r3, .L4
+ 2307 0098 0020A0E3 		mov	r2, #0
+ 2308 009c 002083E5 		str	r2, [r3, #0]
+ 2309              	.L1:
+  34:../latido.c   **** 			//timer1_empezar();
+  35:../latido.c   **** 		}
+  36:../latido.c   **** /*		if (interrupciones == 8) { // 8 interrupciones para encender el LED
+  37:../latido.c   **** 			if (estado_actual_led == led_off) {
+  38:../latido.c   **** 				led1_on();
+  39:../latido.c   **** 				estado_actual_led = led_on;
+  40:../latido.c   **** 				interrupciones = 0;
+  41:../latido.c   **** 				//timer1_empezar();
+  42:../latido.c   **** 			}
+  43:../latido.c   **** 		}*/
+  44:../latido.c   **** 	}
+  45:../latido.c   **** }
+ 2310              		.loc 1 45 0
+ 2311 00a0 0CD04BE2 		sub	sp, fp, #12
+ 2312 00a4 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2313 00a8 1EFF2FE1 		bx	lr
+ 2314              	.L5:
+ 2315              		.align	2
+ 2316              	.L4:
+ 2317 00ac 00000000 		.word	interrupciones
+ 2318 00b0 00000000 		.word	estado_actual_led
+ 2319              		.cfi_endproc
+ 2320              	.LFE0:
+ 2322              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 latido.c
+                            *COM*:00000004 switch_leds
+C:\Users\danie\AppData\Local\Temp\ccXDsoC2.s:2231   .bss:00000000 $d
+C:\Users\danie\AppData\Local\Temp\ccXDsoC2.s:2232   .bss:00000000 interrupciones
+C:\Users\danie\AppData\Local\Temp\ccXDsoC2.s:2237   .data:00000000 estado_actual_led
+C:\Users\danie\AppData\Local\Temp\ccXDsoC2.s:2240   .text:00000000 $a
+C:\Users\danie\AppData\Local\Temp\ccXDsoC2.s:2243   .text:00000000 Latido_ev_new_tick
+C:\Users\danie\AppData\Local\Temp\ccXDsoC2.s:2317   .text:000000ac $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+led1_off
+led1_on

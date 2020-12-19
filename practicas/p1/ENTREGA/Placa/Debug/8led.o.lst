@@ -1,0 +1,120 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 2
+  10              		.eabi_attribute 18, 4
+  11              		.file	"8led.c"
+  21              	.Ltext0:
+  22              		.file 1 "../8led.c"
+ 1879              		.align	2
+ 1880              		.global	D8Led_init
+ 1882              	D8Led_init:
+ 1883              	.LFB0:
+   1:../8led.c     **** /*********************************************************************************************
+   2:../8led.c     **** * Fichero:	8led.c
+   3:../8led.c     **** * Autor:
+   4:../8led.c     **** * Descrip:	Funciones de control del display 8-segmentos
+   5:../8led.c     **** * Version:
+   6:../8led.c     **** *********************************************************************************************/
+   7:../8led.c     **** 
+   8:../8led.c     **** /*--- ficheros de cabecera ---*/
+   9:../8led.c     **** #include "8led.h"
+  10:../8led.c     **** #include "44b.h"
+  11:../8led.c     **** #include "44blib.h"
+  12:../8led.c     **** 
+  13:../8led.c     **** /*--- variables globales del módulo ---*/
+  14:../8led.c     **** /* tabla de segmentos */
+  15:../8led.c     **** static int
+  16:../8led.c     **** Symbol[size_8led] = { cero, uno, dos, tres, cuatro, cinco, seis, siete, ocho, nueve, A, B, C, D, E,
+  17:../8led.c     **** 
+  18:../8led.c     **** /*--- código de las funciones ---*/
+  19:../8led.c     **** void D8Led_init(void)
+  20:../8led.c     **** {
+ 1884              		.loc 1 20 0
+ 1885              		.cfi_startproc
+ 1886              		@ Function supports interworking.
+ 1887              		@ args = 0, pretend = 0, frame = 0
+ 1888              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1889              		@ link register save eliminated.
+  21:../8led.c     **** 	/* Estado inicial del display con todos los segmentos iluminados
+  22:../8led.c     **** 	   (buscar en los ficheros de cabecera la direccion implicada) */
+  23:../8led.c     **** 	LED8ADDR = (unsigned char) cero;
+ 1890              		.loc 1 23 0
+ 1891 0000 1220A0E3 		mov	r2, #18
+ 1892 0004 8537A0E3 		mov	r3, #34865152
+ 1893 0008 0020C3E5 		strb	r2, [r3, #0]
+  24:../8led.c     **** }
+ 1894              		.loc 1 24 0
+ 1895 000c 1EFF2FE1 		bx	lr
+ 1896              		.cfi_endproc
+ 1897              	.LFE0:
+ 1899              		.align	2
+ 1900              		.global	D8Led_symbol
+ 1902              	D8Led_symbol:
+ 1903              	.LFB1:
+  25:../8led.c     **** 
+  26:../8led.c     **** void D8Led_symbol(int value)
+  27:../8led.c     **** {
+ 1904              		.loc 1 27 0
+ 1905              		.cfi_startproc
+ 1906              		@ Function supports interworking.
+ 1907              		@ args = 0, pretend = 0, frame = 0
+ 1908              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1909              		@ link register save eliminated.
+ 1910              	.LVL0:
+  28:../8led.c     **** 	/* muestra el Symbol[value] en el display (analogo al caso anterior) */
+  29:../8led.c     **** 	if ((value >= 0) && (value < size_8led)) {
+ 1911              		.loc 1 29 0
+ 1912 0010 100050E3 		cmp	r0, #16
+  30:../8led.c     **** 		LED8ADDR = (unsigned char) Symbol[value];
+ 1913              		.loc 1 30 0
+ 1914 0014 0C309F95 		ldrls	r3, .L4
+ 1915 0018 0021D397 		ldrlsb	r2, [r3, r0, asl #2]	@ zero_extendqisi2
+ 1916 001c 8537A093 		movls	r3, #34865152
+ 1917 0020 0020C395 		strlsb	r2, [r3, #0]
+ 1918 0024 1EFF2FE1 		bx	lr
+ 1919              	.L5:
+ 1920              		.align	2
+ 1921              	.L4:
+ 1922 0028 00000000 		.word	.LANCHOR0
+ 1923              		.cfi_endproc
+ 1924              	.LFE1:
+ 1926              		.section	.rodata
+ 1927              		.align	2
+ 1928              		.set	.LANCHOR0,. + 0
+ 1931              	Symbol:
+ 1932 0000 12FFFFFF 		.word	-238
+ 1933 0004 9FFFFFFF 		.word	-97
+ 1934 0008 31FFFFFF 		.word	-207
+ 1935 000c 15FFFFFF 		.word	-235
+ 1936 0010 9CFFFFFF 		.word	-100
+ 1937 0014 54FFFFFF 		.word	-172
+ 1938 0018 D0FFFFFF 		.word	-48
+ 1939 001c 1FFFFFFF 		.word	-225
+ 1940 0020 10FFFFFF 		.word	-240
+ 1941 0024 1CFFFFFF 		.word	-228
+ 1942 0028 18FFFFFF 		.word	-232
+ 1943 002c D0FFFFFF 		.word	-48
+ 1944 0030 72FFFFFF 		.word	-142
+ 1945 0034 91FFFFFF 		.word	-111
+ 1946 0038 70FFFFFF 		.word	-144
+ 1947 003c 78FFFFFF 		.word	-136
+ 1948 0040 FFFFFFFF 		.word	-1
+ 1949              		.text
+ 1950              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 8led.c
+C:\Users\danie\AppData\Local\Temp\ccpmswOW.s:1879   .text:00000000 $a
+C:\Users\danie\AppData\Local\Temp\ccpmswOW.s:1882   .text:00000000 D8Led_init
+C:\Users\danie\AppData\Local\Temp\ccpmswOW.s:1902   .text:00000010 D8Led_symbol
+C:\Users\danie\AppData\Local\Temp\ccpmswOW.s:1922   .text:00000028 $d
+C:\Users\danie\AppData\Local\Temp\ccpmswOW.s:1927   .rodata:00000000 $d
+C:\Users\danie\AppData\Local\Temp\ccpmswOW.s:1931   .rodata:00000000 Symbol
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS

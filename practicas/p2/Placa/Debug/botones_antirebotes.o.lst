@@ -1,0 +1,399 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"botones_antirebotes.c"
+  21              	.Ltext0:
+  22              		.file 1 "../botones_antirebotes.c"
+ 2241              	boton_antirrebotes_atendido:
+ 2242 0000 00       		.space	1
+ 2243              		.comm	switch_leds,4,4
+ 2244              		.data
+ 2245              		.align	2
+ 2248              	TRP:
+ 2249 0000 A0860100 		.word	100000
+ 2250              		.align	2
+ 2253              	TIEMPO_ESPERA_COMPROBACION:
+ 2254 0004 30750000 		.word	30000
+ 2255              		.align	2
+ 2258              	TRD:
+ 2259 0008 A0860100 		.word	100000
+ 2260              		.bss
+ 2261              	estado_actual:
+ 2262 0001 00       		.space	1
+ 2263              	boton_actual:
+ 2264 0002 00       		.space	1
+ 2265 0003 00       		.align	2
+ 2266              	tiempo_referencia:
+ 2267 0004 00000000 		.space	4
+ 2268              		.align	2
+ 2269              	tiempo_actual:
+ 2270 0008 00000000 		.space	4
+ 2271              	atendiendo_boton:
+ 2272 000c 00       		.space	1
+ 2273 000d 000000   		.text
+ 2274              		.align	2
+ 2275              		.global	botones_antirebotes_init
+ 2277              	botones_antirebotes_init:
+ 2278              	.LFB0:
+   1:../botones_antirebotes.c **** #include "botones_antirebotes.h"
+   2:../botones_antirebotes.c **** #include "timer.h"
+   3:../botones_antirebotes.c **** #include "pila.h"
+   4:../botones_antirebotes.c **** #include "button.h"
+   5:../botones_antirebotes.c **** #include "stdio.h"
+   6:../botones_antirebotes.c **** 
+   7:../botones_antirebotes.c **** /*--------------------------------------------------------------*/
+   8:../botones_antirebotes.c **** 
+   9:../botones_antirebotes.c **** static unsigned int TRP = 100000;
+  10:../botones_antirebotes.c **** static unsigned int TIEMPO_ESPERA_COMPROBACION = 30000;
+  11:../botones_antirebotes.c **** static unsigned int TRD = 100000;
+  12:../botones_antirebotes.c **** 
+  13:../botones_antirebotes.c **** static volatile enum evento estado_actual;
+  14:../botones_antirebotes.c **** static volatile enum estado_button boton_actual;
+  15:../botones_antirebotes.c **** static volatile unsigned int tiempo_referencia;
+  16:../botones_antirebotes.c **** static volatile unsigned int tiempo_actual;
+  17:../botones_antirebotes.c **** 
+  18:../botones_antirebotes.c **** enum estado_button boton_antirrebotes_atendido = button_none;
+  19:../botones_antirebotes.c **** static enum estado_button atendiendo_boton = button_none;
+  20:../botones_antirebotes.c **** 
+  21:../botones_antirebotes.c **** void botones_antirebotes_init(void)
+  22:../botones_antirebotes.c **** {
+ 2279              		.loc 1 22 0
+ 2280              		.cfi_startproc
+ 2281              		@ Function supports interworking.
+ 2282              		@ args = 0, pretend = 0, frame = 0
+ 2283              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2284 0000 0DC0A0E1 		mov	ip, sp
+ 2285              	.LCFI0:
+ 2286              		.cfi_def_cfa_register 12
+ 2287 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2288 0008 04B04CE2 		sub	fp, ip, #4
+ 2289              		.cfi_offset 14, -8
+ 2290              		.cfi_offset 13, -12
+ 2291              		.cfi_offset 11, -16
+ 2292              	.LCFI1:
+ 2293              		.cfi_def_cfa 11, 4
+  23:../botones_antirebotes.c ****     estado_actual = EST_INICIO;
+ 2294              		.loc 1 23 0
+ 2295 000c 1C309FE5 		ldr	r3, .L2
+ 2296 0010 1320A0E3 		mov	r2, #19
+ 2297 0014 0020C3E5 		strb	r2, [r3, #0]
+  24:../botones_antirebotes.c ****     boton_actual = button_none;
+ 2298              		.loc 1 24 0
+ 2299 0018 14309FE5 		ldr	r3, .L2+4
+ 2300 001c 0020A0E3 		mov	r2, #0
+ 2301 0020 0020C3E5 		strb	r2, [r3, #0]
+  25:../botones_antirebotes.c **** }
+ 2302              		.loc 1 25 0
+ 2303 0024 0CD04BE2 		sub	sp, fp, #12
+ 2304 0028 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2305 002c 1EFF2FE1 		bx	lr
+ 2306              	.L3:
+ 2307              		.align	2
+ 2308              	.L2:
+ 2309 0030 01000000 		.word	estado_actual
+ 2310 0034 02000000 		.word	boton_actual
+ 2311              		.cfi_endproc
+ 2312              	.LFE0:
+ 2314              		.align	2
+ 2315              		.global	boton_pulsado
+ 2317              	boton_pulsado:
+ 2318              	.LFB1:
+  26:../botones_antirebotes.c **** 
+  27:../botones_antirebotes.c **** void boton_pulsado(enum estado_button boton_presionado) {
+ 2319              		.loc 1 27 0
+ 2320              		.cfi_startproc
+ 2321              		@ Function supports interworking.
+ 2322              		@ args = 0, pretend = 0, frame = 8
+ 2323              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2324 0038 0DC0A0E1 		mov	ip, sp
+ 2325              	.LCFI2:
+ 2326              		.cfi_def_cfa_register 12
+ 2327 003c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2328 0040 04B04CE2 		sub	fp, ip, #4
+ 2329              		.cfi_offset 14, -8
+ 2330              		.cfi_offset 13, -12
+ 2331              		.cfi_offset 11, -16
+ 2332              	.LCFI3:
+ 2333              		.cfi_def_cfa 11, 4
+ 2334 0044 08D04DE2 		sub	sp, sp, #8
+ 2335 0048 0030A0E1 		mov	r3, r0
+ 2336 004c 0D304BE5 		strb	r3, [fp, #-13]
+  28:../botones_antirebotes.c ****     estado_actual = EST_REBOTES_PRESION;
+ 2337              		.loc 1 28 0
+ 2338 0050 28309FE5 		ldr	r3, .L5
+ 2339 0054 1420A0E3 		mov	r2, #20
+ 2340 0058 0020C3E5 		strb	r2, [r3, #0]
+  29:../botones_antirebotes.c ****     boton_actual = boton_presionado;
+ 2341              		.loc 1 29 0
+ 2342 005c 20309FE5 		ldr	r3, .L5+4
+ 2343 0060 0D205BE5 		ldrb	r2, [fp, #-13]
+ 2344 0064 0020C3E5 		strb	r2, [r3, #0]
+  30:../botones_antirebotes.c ****     atendiendo_boton = boton_presionado;
+ 2345              		.loc 1 30 0
+ 2346 0068 18309FE5 		ldr	r3, .L5+8
+ 2347 006c 0D205BE5 		ldrb	r2, [fp, #-13]
+ 2348 0070 0020C3E5 		strb	r2, [r3, #0]
+  31:../botones_antirebotes.c **** 
+  32:../botones_antirebotes.c **** }
+ 2349              		.loc 1 32 0
+ 2350 0074 0CD04BE2 		sub	sp, fp, #12
+ 2351 0078 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2352 007c 1EFF2FE1 		bx	lr
+ 2353              	.L6:
+ 2354              		.align	2
+ 2355              	.L5:
+ 2356 0080 01000000 		.word	estado_actual
+ 2357 0084 02000000 		.word	boton_actual
+ 2358 0088 0C000000 		.word	atendiendo_boton
+ 2359              		.cfi_endproc
+ 2360              	.LFE1:
+ 2362              		.align	2
+ 2363              		.global	botones_antirebotes_leer
+ 2365              	botones_antirebotes_leer:
+ 2366              	.LFB2:
+  33:../botones_antirebotes.c **** 
+  34:../botones_antirebotes.c **** enum estado_button botones_antirebotes_leer(void)
+  35:../botones_antirebotes.c **** {
+ 2367              		.loc 1 35 0
+ 2368              		.cfi_startproc
+ 2369              		@ Function supports interworking.
+ 2370              		@ args = 0, pretend = 0, frame = 0
+ 2371              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2372 008c 0DC0A0E1 		mov	ip, sp
+ 2373              	.LCFI4:
+ 2374              		.cfi_def_cfa_register 12
+ 2375 0090 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2376 0094 04B04CE2 		sub	fp, ip, #4
+ 2377              		.cfi_offset 14, -8
+ 2378              		.cfi_offset 13, -12
+ 2379              		.cfi_offset 11, -16
+ 2380              	.LCFI5:
+ 2381              		.cfi_def_cfa 11, 4
+  36:../botones_antirebotes.c ****     return boton_actual;
+ 2382              		.loc 1 36 0
+ 2383 0098 14309FE5 		ldr	r3, .L8
+ 2384 009c 0030D3E5 		ldrb	r3, [r3, #0]
+ 2385 00a0 FF3003E2 		and	r3, r3, #255
+  37:../botones_antirebotes.c **** }
+ 2386              		.loc 1 37 0
+ 2387 00a4 0300A0E1 		mov	r0, r3
+ 2388 00a8 0CD04BE2 		sub	sp, fp, #12
+ 2389 00ac 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2390 00b0 1EFF2FE1 		bx	lr
+ 2391              	.L9:
+ 2392              		.align	2
+ 2393              	.L8:
+ 2394 00b4 02000000 		.word	boton_actual
+ 2395              		.cfi_endproc
+ 2396              	.LFE2:
+ 2398              		.align	2
+ 2399              		.global	botones_antirebotes_gestion
+ 2401              	botones_antirebotes_gestion:
+ 2402              	.LFB3:
+  38:../botones_antirebotes.c **** 
+  39:../botones_antirebotes.c **** void botones_antirebotes_gestion() {
+ 2403              		.loc 1 39 0
+ 2404              		.cfi_startproc
+ 2405              		@ Function supports interworking.
+ 2406              		@ args = 0, pretend = 0, frame = 8
+ 2407              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2408 00b8 0DC0A0E1 		mov	ip, sp
+ 2409              	.LCFI6:
+ 2410              		.cfi_def_cfa_register 12
+ 2411 00bc 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2412 00c0 04B04CE2 		sub	fp, ip, #4
+ 2413              		.cfi_offset 14, -8
+ 2414              		.cfi_offset 13, -12
+ 2415              		.cfi_offset 11, -16
+ 2416              	.LCFI7:
+ 2417              		.cfi_def_cfa 11, 4
+ 2418 00c4 08D04DE2 		sub	sp, sp, #8
+  40:../botones_antirebotes.c ****     switch (estado_actual) {
+ 2419              		.loc 1 40 0
+ 2420 00c8 C4309FE5 		ldr	r3, .L21
+ 2421 00cc 0030D3E5 		ldrb	r3, [r3, #0]
+ 2422 00d0 FF3003E2 		and	r3, r3, #255
+ 2423 00d4 133043E2 		sub	r3, r3, #19
+ 2424 00d8 030053E3 		cmp	r3, #3
+ 2425 00dc 03F19F97 		ldrls	pc, [pc, r3, asl #2]
+ 2426 00e0 270000EA 		b	.L20
+ 2427              	.L16:
+ 2428 00e4 84010000 		.word	.L20
+ 2429 00e8 F4000000 		.word	.L13
+ 2430 00ec 08010000 		.word	.L14
+ 2431 00f0 60010000 		.word	.L15
+ 2432              	.L13:
+ 2433              	.LBB2:
+  41:../botones_antirebotes.c ****     	case EST_INICIO: break;
+  42:../botones_antirebotes.c **** 
+  43:../botones_antirebotes.c **** 		case EST_REBOTES_PRESION: // Espera el tiempo TRP
+  44:../botones_antirebotes.c **** 		{
+  45:../botones_antirebotes.c **** 		//	tiempo_actual = tiempo_transcurrido(tiempo_referencia);
+  46:../botones_antirebotes.c **** 		//	if (tiempo_actual > TRP) {
+  47:../botones_antirebotes.c **** 		//	push_debug(EST_MANTIENE_PULSADO, 0);
+  48:../botones_antirebotes.c **** 			estado_actual = EST_MANTIENE_PULSADO;
+ 2434              		.loc 1 48 0
+ 2435 00f4 98309FE5 		ldr	r3, .L21
+ 2436 00f8 1520A0E3 		mov	r2, #21
+ 2437 00fc 0020C3E5 		strb	r2, [r3, #0]
+  49:../botones_antirebotes.c **** 			timer_empezar();
+ 2438              		.loc 1 49 0
+ 2439 0100 FEFFFFEB 		bl	timer_empezar
+  50:../botones_antirebotes.c **** 		//	tiempo_referencia = tiempo_actual;
+  51:../botones_antirebotes.c **** 		//	} else {
+  52:../botones_antirebotes.c **** 		//		push_debug(EST_REBOTES_PRESION, 0);
+  53:../botones_antirebotes.c **** 		//	}
+  54:../botones_antirebotes.c **** 			break;
+ 2440              		.loc 1 54 0
+ 2441 0104 1F0000EA 		b	.L10
+ 2442              	.L14:
+ 2443              	.LBE2:
+ 2444              	.LBB3:
+  55:../botones_antirebotes.c **** 		}
+  56:../botones_antirebotes.c **** 		case EST_MANTIENE_PULSADO: { // Espera de 30ms pa ver si ha sido depresionado
+  57:../botones_antirebotes.c **** 		//	tiempo_actual = tiempo_transcurrido(tiempo_referencia);
+  58:../botones_antirebotes.c **** 		//	if (tiempo_actual > TIEMPO_ESPERA_COMPROBACION) {
+  59:../botones_antirebotes.c **** 			enum estado_button estado_boton_nuevo = button_estado();
+ 2445              		.loc 1 59 0
+ 2446 0108 FEFFFFEB 		bl	button_estado
+ 2447 010c 0030A0E1 		mov	r3, r0
+ 2448 0110 0D304BE5 		strb	r3, [fp, #-13]
+  60:../botones_antirebotes.c **** 		//		tiempo_referencia = tiempo_actual;
+  61:../botones_antirebotes.c **** 
+  62:../botones_antirebotes.c **** 			if (estado_boton_nuevo != boton_actual) {
+ 2449              		.loc 1 62 0
+ 2450 0114 7C309FE5 		ldr	r3, .L21+4
+ 2451 0118 0030D3E5 		ldrb	r3, [r3, #0]
+ 2452 011c FF3003E2 		and	r3, r3, #255
+ 2453 0120 0D205BE5 		ldrb	r2, [fp, #-13]	@ zero_extendqisi2
+ 2454 0124 030052E1 		cmp	r2, r3
+ 2455 0128 0700000A 		beq	.L18
+ 2456              	.LBB4:
+  63:../botones_antirebotes.c **** 				boton_actual = estado_boton_nuevo;
+ 2457              		.loc 1 63 0
+ 2458 012c 64309FE5 		ldr	r3, .L21+4
+ 2459 0130 0D205BE5 		ldrb	r2, [fp, #-13]
+ 2460 0134 0020C3E5 		strb	r2, [r3, #0]
+  64:../botones_antirebotes.c **** 				estado_actual = EST_REBOTES_DEPRESION;
+ 2461              		.loc 1 64 0
+ 2462 0138 54309FE5 		ldr	r3, .L21
+ 2463 013c 1620A0E3 		mov	r2, #22
+ 2464 0140 0020C3E5 		strb	r2, [r3, #0]
+  65:../botones_antirebotes.c **** 				timer4_empezar();
+ 2465              		.loc 1 65 0
+ 2466 0144 FEFFFFEB 		bl	timer4_empezar
+ 2467              	.LBE4:
+  66:../botones_antirebotes.c **** 				//push_debug(EST_REBOTES_DEPRESION, 0);
+  67:../botones_antirebotes.c **** 			} else {
+  68:../botones_antirebotes.c **** 				timer_empezar();
+  69:../botones_antirebotes.c **** 				estado_actual = EST_MANTIENE_PULSADO;
+  70:../botones_antirebotes.c **** 			}
+  71:../botones_antirebotes.c **** 		//	} else {
+  72:../botones_antirebotes.c **** 		//		push_debug(EST_MANTIENE_PULSADO, 0);
+  73:../botones_antirebotes.c **** 		//	}
+  74:../botones_antirebotes.c **** 			break;
+ 2468              		.loc 1 74 0
+ 2469 0148 0E0000EA 		b	.L10
+ 2470              	.L18:
+ 2471              	.LBB5:
+  68:../botones_antirebotes.c **** 				timer_empezar();
+ 2472              		.loc 1 68 0
+ 2473 014c FEFFFFEB 		bl	timer_empezar
+  69:../botones_antirebotes.c **** 				estado_actual = EST_MANTIENE_PULSADO;
+ 2474              		.loc 1 69 0
+ 2475 0150 3C309FE5 		ldr	r3, .L21
+ 2476 0154 1520A0E3 		mov	r2, #21
+ 2477 0158 0020C3E5 		strb	r2, [r3, #0]
+ 2478              	.LBE5:
+ 2479              		.loc 1 74 0
+ 2480 015c 090000EA 		b	.L10
+ 2481              	.L15:
+ 2482              	.LBE3:
+  75:../botones_antirebotes.c **** 		}
+  76:../botones_antirebotes.c **** 		case EST_REBOTES_DEPRESION: { // Espera el tiempo TRD y habilita interrupciones
+  77:../botones_antirebotes.c **** 		//	tiempo_actual = tiempo_transcurrido(tiempo_referencia);
+  78:../botones_antirebotes.c **** 		//	if (tiempo_actual > TRD) {
+  79:../botones_antirebotes.c **** 			button_resetear(); // Habilita de nuevo las interrupciones para botón
+ 2483              		.loc 1 79 0
+ 2484 0160 FEFFFFEB 		bl	button_resetear
+  80:../botones_antirebotes.c **** 			estado_actual = EST_INICIO;
+ 2485              		.loc 1 80 0
+ 2486 0164 28309FE5 		ldr	r3, .L21
+ 2487 0168 1320A0E3 		mov	r2, #19
+ 2488 016c 0020C3E5 		strb	r2, [r3, #0]
+  81:../botones_antirebotes.c **** 			boton_antirrebotes_atendido = atendiendo_boton;
+ 2489              		.loc 1 81 0
+ 2490 0170 24309FE5 		ldr	r3, .L21+8
+ 2491 0174 0020D3E5 		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 2492 0178 20309FE5 		ldr	r3, .L21+12
+ 2493 017c 0020C3E5 		strb	r2, [r3, #0]
+  82:../botones_antirebotes.c **** 		//	} else {
+  83:../botones_antirebotes.c **** 		//		push_debug(EST_REBOTES_DEPRESION, 0);
+  84:../botones_antirebotes.c **** 		//	}
+  85:../botones_antirebotes.c **** 			break;
+ 2494              		.loc 1 85 0
+ 2495 0180 000000EA 		b	.L10
+ 2496              	.L20:
+  86:../botones_antirebotes.c **** 		}
+  87:../botones_antirebotes.c **** 		default: break;
+ 2497              		.loc 1 87 0
+ 2498 0184 0000A0E1 		mov	r0, r0	@ nop
+ 2499              	.L10:
+  88:../botones_antirebotes.c ****     }
+  89:../botones_antirebotes.c **** }
+ 2500              		.loc 1 89 0
+ 2501 0188 0CD04BE2 		sub	sp, fp, #12
+ 2502 018c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2503 0190 1EFF2FE1 		bx	lr
+ 2504              	.L22:
+ 2505              		.align	2
+ 2506              	.L21:
+ 2507 0194 01000000 		.word	estado_actual
+ 2508 0198 02000000 		.word	boton_actual
+ 2509 019c 0C000000 		.word	atendiendo_boton
+ 2510 01a0 00000000 		.word	boton_antirrebotes_atendido
+ 2511              		.cfi_endproc
+ 2512              	.LFE3:
+ 2514              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 botones_antirebotes.c
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2241   .bss:00000000 boton_antirrebotes_atendido
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2242   .bss:00000000 $d
+                            *COM*:00000004 switch_leds
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2245   .data:00000000 $d
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2248   .data:00000000 TRP
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2253   .data:00000004 TIEMPO_ESPERA_COMPROBACION
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2258   .data:00000008 TRD
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2261   .bss:00000001 estado_actual
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2263   .bss:00000002 boton_actual
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2266   .bss:00000004 tiempo_referencia
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2269   .bss:00000008 tiempo_actual
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2271   .bss:0000000c atendiendo_boton
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2274   .text:00000000 $a
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2277   .text:00000000 botones_antirebotes_init
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2309   .text:00000030 $d
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2314   .text:00000038 $a
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2317   .text:00000038 boton_pulsado
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2356   .text:00000080 $d
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2362   .text:0000008c $a
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2365   .text:0000008c botones_antirebotes_leer
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2394   .text:000000b4 $d
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2398   .text:000000b8 $a
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2401   .text:000000b8 botones_antirebotes_gestion
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2428   .text:000000e4 $d
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2435   .text:000000f4 $a
+C:\Users\danie\AppData\Local\Temp\ccRbgL5o.s:2507   .text:00000194 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+timer_empezar
+button_estado
+timer4_empezar
+button_resetear

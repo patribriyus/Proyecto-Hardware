@@ -1,0 +1,151 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"main.c"
+  21              	.Ltext0:
+  22              		.file 1 "../main.c"
+ 2172              		.align	2
+ 2173              		.global	Main
+ 2175              	Main:
+ 2176              	.LFB0:
+   1:../main.c     **** /*********************************************************************************************
+   2:../main.c     **** * Fichero:	main.c
+   3:../main.c     **** * Autor:
+   4:../main.c     **** * Descrip:	punto de entrada de C
+   5:../main.c     **** * Version:  <P4-ARM.timer-leds>
+   6:../main.c     **** *********************************************************************************************/
+   7:../main.c     **** 
+   8:../main.c     **** /*--- ficheros de cabecera ---*/
+   9:../main.c     **** #include "8led.h"
+  10:../main.c     **** #include "button.h"
+  11:../main.c     **** #include "led.h"
+  12:../main.c     **** #include "timer.h"
+  13:../main.c     **** #include "timer2.h"
+  14:../main.c     **** #include "timer4.h"
+  15:../main.c     **** #include "44blib.h"
+  16:../main.c     **** #include "44b.h"
+  17:../main.c     **** #include "reversi8.h"
+  18:../main.c     **** 
+  19:../main.c     **** /*--- variables globales ---*/
+  20:../main.c     **** 
+  21:../main.c     **** 
+  22:../main.c     **** /*--- codigo de funciones ---*/
+  23:../main.c     **** void Main(void)
+  24:../main.c     **** {
+ 2177              		.loc 1 24 0
+ 2178              		.cfi_startproc
+ 2179              		@ Function supports interworking.
+ 2180              		@ args = 0, pretend = 0, frame = 0
+ 2181              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2182 0000 0DC0A0E1 		mov	ip, sp
+ 2183              	.LCFI0:
+ 2184              		.cfi_def_cfa_register 12
+ 2185 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2186 0008 04B04CE2 		sub	fp, ip, #4
+ 2187              		.cfi_offset 14, -8
+ 2188              		.cfi_offset 13, -12
+ 2189              		.cfi_offset 11, -16
+ 2190              	.LCFI1:
+ 2191              		.cfi_def_cfa 11, 4
+  25:../main.c     **** 	unsigned int prueba;
+  26:../main.c     **** 	/* Inicializa controladores */
+  27:../main.c     **** 	sys_init();         // Inicializacion de la placa, interrupciones y puertos
+ 2192              		.loc 1 27 0
+ 2193 000c FEFFFFEB 		bl	sys_init
+  28:../main.c     **** 	botones_antirebotes_init();
+ 2194              		.loc 1 28 0
+ 2195 0010 FEFFFFEB 		bl	botones_antirebotes_init
+  29:../main.c     **** 
+  30:../main.c     **** 	timer_init();
+ 2196              		.loc 1 30 0
+ 2197 0014 FEFFFFEB 		bl	timer_init
+  31:../main.c     **** 	//timer_empezar();
+  32:../main.c     **** 	//timer1_init();
+  33:../main.c     **** 	//timer1_empezar();
+  34:../main.c     **** 	timer2_inicializar();
+ 2198              		.loc 1 34 0
+ 2199 0018 FEFFFFEB 		bl	timer2_inicializar
+  35:../main.c     **** 
+  36:../main.c     **** 	timer4_init();
+ 2200              		.loc 1 36 0
+ 2201 001c FEFFFFEB 		bl	timer4_init
+  37:../main.c     **** 
+  38:../main.c     **** 	timer2_empezar();
+ 2202              		.loc 1 38 0
+ 2203 0020 FEFFFFEB 		bl	timer2_empezar
+  39:../main.c     **** 	timer4_empezar();
+ 2204              		.loc 1 39 0
+ 2205 0024 FEFFFFEB 		bl	timer4_empezar
+  40:../main.c     **** 
+  41:../main.c     **** 
+  42:../main.c     **** 
+  43:../main.c     **** 	//unsigned int tiempo = timer2_parar();
+  44:../main.c     **** 
+  45:../main.c     **** 	Eint4567_init();	// inicializamos los pulsadores. Cada vez que se pulse se verá reflejado en el 8l
+ 2206              		.loc 1 45 0
+ 2207 0028 FEFFFFEB 		bl	Eint4567_init
+  46:../main.c     **** 
+  47:../main.c     **** 	// int interrupciones = interrupciones_var();
+  48:../main.c     **** 	// Inicializacion del temporizador
+  49:../main.c     **** 
+  50:../main.c     **** 	D8Led_init();       // inicializamos el 8led
+ 2208              		.loc 1 50 0
+ 2209 002c FEFFFFEB 		bl	D8Led_init
+ 2210              	.L2:
+  51:../main.c     **** 
+  52:../main.c     **** 
+  53:../main.c     **** 
+  54:../main.c     **** 	/*
+  55:../main.c     **** 	// Timers completos
+  56:../main.c     **** 	int prueba0, prueba1, prueba2, prueba3, prueba4;
+  57:../main.c     **** 	timer2_inicializar();
+  58:../main.c     **** 
+  59:../main.c     **** 	timer2_empezar();
+  60:../main.c     **** 	Delay(100);
+  61:../main.c     **** 	prueba1 = timer2_parar();
+  62:../main.c     **** 
+  63:../main.c     **** 	timer2_empezar();
+  64:../main.c     **** 	Delay(1000);
+  65:../main.c     **** 	prueba2 = timer2_parar();
+  66:../main.c     **** 
+  67:../main.c     **** 	timer2_empezar();
+  68:../main.c     **** 	Delay(10000);
+  69:../main.c     **** 	prueba3 = timer2_parar();
+  70:../main.c     **** 
+  71:../main.c     **** 	timer2_empezar();
+  72:../main.c     **** 	Delay(100000);
+  73:../main.c     **** 	prueba4 = timer2_parar();
+  74:../main.c     **** 
+  75:../main.c     **** 	prueba = timer2_parar();
+  76:../main.c     **** */
+  77:../main.c     **** 
+  78:../main.c     **** 	while(1) {}
+ 2211              		.loc 1 78 0 discriminator 1
+ 2212 0030 FEFFFFEA 		b	.L2
+ 2213              		.cfi_endproc
+ 2214              	.LFE0:
+ 2216              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+                            *COM*:00000004 switch_leds
+C:\Users\danie\AppData\Local\Temp\ccE1QgVQ.s:2172   .text:00000000 $a
+C:\Users\danie\AppData\Local\Temp\ccE1QgVQ.s:2175   .text:00000000 Main
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+sys_init
+botones_antirebotes_init
+timer_init
+timer2_inicializar
+timer4_init
+timer2_empezar
+timer4_empezar
+Eint4567_init
+D8Led_init

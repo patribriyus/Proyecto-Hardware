@@ -1,0 +1,157 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 2
+  10              		.eabi_attribute 18, 4
+  11              		.file	"main.c"
+  21              	.Ltext0:
+  22              		.file 1 "../main.c"
+ 1916              		.align	2
+ 1917              		.global	Main
+ 1919              	Main:
+ 1920              	.LFB0:
+   1:../main.c     **** /*********************************************************************************************
+   2:../main.c     **** * Fichero:	main.c
+   3:../main.c     **** * Autor:
+   4:../main.c     **** * Descrip:	punto de entrada de C
+   5:../main.c     **** * Version:  <P4-ARM.timer-leds>
+   6:../main.c     **** *********************************************************************************************/
+   7:../main.c     **** 
+   8:../main.c     **** /*--- ficheros de cabecera ---*/
+   9:../main.c     **** #include "8led.h"
+  10:../main.c     **** #include "button.h"
+  11:../main.c     **** #include "led.h"
+  12:../main.c     **** #include "timer.h"
+  13:../main.c     **** #include "timer2.h"
+  14:../main.c     **** #include "44blib.h"
+  15:../main.c     **** #include "44b.h"
+  16:../main.c     **** #include "reversi8.h"
+  17:../main.c     **** 
+  18:../main.c     **** /*--- variables globales ---*/
+  19:../main.c     **** 
+  20:../main.c     **** 
+  21:../main.c     **** /*--- codigo de funciones ---*/
+  22:../main.c     **** void Main(void)
+  23:../main.c     **** {
+ 1921              		.loc 1 23 0
+ 1922              		.cfi_startproc
+ 1923              		@ Function supports interworking.
+ 1924              		@ args = 0, pretend = 0, frame = 0
+ 1925              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1926 0000 0DC0A0E1 		mov	ip, sp
+ 1927              	.LCFI0:
+ 1928              		.cfi_def_cfa_register 12
+ 1929 0004 18D82DE9 		stmfd	sp!, {r3, r4, fp, ip, lr, pc}
+  24:../main.c     **** 	unsigned int prueba;
+  25:../main.c     **** 	/* Inicializa controladores */
+  26:../main.c     **** 	sys_init();         // Inicializacion de la placa, interrupciones y puertos
+  27:../main.c     **** 	//timer_init();	    // Inicializacion del temporizador
+  28:../main.c     **** 	//timer_init();
+  29:../main.c     **** 	timer2_inicializar();
+  30:../main.c     **** 	timer2_empezar();
+  31:../main.c     **** 	Eint4567_init();	// inicializamos los pulsadores. Cada vez que se pulse se verá reflejado en el 8l
+  32:../main.c     **** 	D8Led_init();       // inicializamos el 8led
+  33:../main.c     **** 
+  34:../main.c     **** /*
+  35:../main.c     **** 	Delay(10000);
+  36:../main.c     **** 
+  37:../main.c     **** 	prueba = timer2_parar();
+  38:../main.c     **** 
+  39:../main.c     **** 	timer2_inicializar();
+  40:../main.c     **** 	timer2_empezar();
+  41:../main.c     **** 	Delay(1000);
+  42:../main.c     **** 
+  43:../main.c     **** 	prueba = timer2_parar();
+  44:../main.c     **** 
+  45:../main.c     **** 	/* Valor inicial de los leds */
+  46:../main.c     **** 
+  47:../main.c     **** 	reversi8();
+  48:../main.c     **** 
+  49:../main.c     **** 	leds_off();
+  50:../main.c     **** 	led1_on();
+ 1930              		.loc 1 50 0
+ 1931 0008 3C409FE5 		ldr	r4, .L6
+ 1932              		.cfi_offset 14, -8
+ 1933              		.cfi_offset 13, -12
+ 1934              		.cfi_offset 11, -16
+ 1935              		.cfi_offset 4, -20
+ 1936              		.cfi_offset 3, -24
+  23:../main.c     **** {
+ 1937              		.loc 1 23 0
+ 1938 000c 04B04CE2 		sub	fp, ip, #4
+ 1939              	.LCFI1:
+ 1940              		.cfi_def_cfa 11, 4
+  26:../main.c     **** 	sys_init();         // Inicializacion de la placa, interrupciones y puertos
+ 1941              		.loc 1 26 0
+ 1942 0010 FEFFFFEB 		bl	sys_init
+  29:../main.c     **** 	timer2_inicializar();
+ 1943              		.loc 1 29 0
+ 1944 0014 FEFFFFEB 		bl	timer2_inicializar
+  30:../main.c     **** 	timer2_empezar();
+ 1945              		.loc 1 30 0
+ 1946 0018 FEFFFFEB 		bl	timer2_empezar
+  31:../main.c     **** 	Eint4567_init();	// inicializamos los pulsadores. Cada vez que se pulse se verá reflejado en el 8l
+ 1947              		.loc 1 31 0
+ 1948 001c FEFFFFEB 		bl	Eint4567_init
+  32:../main.c     **** 	D8Led_init();       // inicializamos el 8led
+ 1949              		.loc 1 32 0
+ 1950 0020 FEFFFFEB 		bl	D8Led_init
+  47:../main.c     **** 	reversi8();
+ 1951              		.loc 1 47 0
+ 1952 0024 FEFFFFEB 		bl	reversi8
+  49:../main.c     **** 	leds_off();
+ 1953              		.loc 1 49 0
+ 1954 0028 FEFFFFEB 		bl	leds_off
+ 1955              		.loc 1 50 0
+ 1956 002c FEFFFFEB 		bl	led1_on
+ 1957 0030 003094E5 		ldr	r3, [r4, #0]
+ 1958 0034 010053E3 		cmp	r3, #1
+ 1959 0038 0200001A 		bne	.L3
+  51:../main.c     **** 
+  52:../main.c     **** 	while (1)
+  53:../main.c     **** 	{
+  54:../main.c     **** 		/* Cambia los leds con cada interrupcion del temporizador */
+  55:../main.c     **** 		if (switch_leds == 1)
+  56:../main.c     **** 		{
+  57:../main.c     **** 
+  58:../main.c     **** 			leds_switch();
+ 1960              		.loc 1 58 0
+ 1961 003c FEFFFFEB 		bl	leds_switch
+  59:../main.c     **** 			switch_leds = 0;
+ 1962              		.loc 1 59 0
+ 1963 0040 0000A0E3 		mov	r0, #0
+ 1964 0044 000084E5 		str	r0, [r4, #0]
+ 1965              	.L3:
+ 1966              	.L4:
+ 1967 0048 FEFFFFEA 		b	.L4
+ 1968              	.L7:
+ 1969              		.align	2
+ 1970              	.L6:
+ 1971 004c 00000000 		.word	switch_leds
+ 1972              		.cfi_endproc
+ 1973              	.LFE0:
+ 1975              		.comm	switch_leds,4,4
+ 1976              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\danie\AppData\Local\Temp\ccgpuWA7.s:1916   .text:00000000 $a
+C:\Users\danie\AppData\Local\Temp\ccgpuWA7.s:1919   .text:00000000 Main
+C:\Users\danie\AppData\Local\Temp\ccgpuWA7.s:1971   .text:0000004c $d
+                            *COM*:00000004 switch_leds
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+sys_init
+timer2_inicializar
+timer2_empezar
+Eint4567_init
+D8Led_init
+reversi8
+leds_off
+led1_on
+leds_switch

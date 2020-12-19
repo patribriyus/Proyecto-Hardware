@@ -1,0 +1,110 @@
+   1              	# 1 "../patron_volteo_arm_c.asm"
+   1              	.global patron_volteo_arm_c
+   0              	
+   0              	
+   0              	
+   2              	.extern ficha_valida
+   3              	
+   4 0000 00000000 	posicion_valida: .space 4
+   5              	
+   6              	.equ PATRON_ENCONTRADO, 1
+   7              	.equ NO_HAY_PATRON, 0
+   8              	
+   9              	patron_volteo_arm_c:
+  10              	.arm
+  11              	
+  12 0004 F04F2DE9 		push {r4-r10,fp,lr}
+  13              	
+  14              		@ Parametros a preguntar
+  15              		@ R0 = TABLERO
+  16              		@ R1 = @*Longitud
+  17              		@ R2 = FA
+  18              		@ R3 = CA
+  19              		@ fp + 4 = SF
+  20              		@ fp + 8 = SC
+  21              		@ fp + 12 = COLOR
+  22              	
+  23              		@ Paso de parametros a ficha_valida (r0 - r3 los valores cambian)
+  24              		@ R0 = Tablero
+  25              		@ R1 = FA
+  26              		@ R2 = CA
+  27              		@ R3 = DIR_POS_VAL
+  28              		@ --------------------
+  29              		@ R4 = Longitud
+  30              		@ R5 = DIR_POS_VAL
+  31              		@ R6 = FA
+  32              		@ R7 = COLOR
+  33              		@ R8 = CA
+  34              		@ R9 = @*Longitud
+  35              		@ R10 = TABLERO
+  36              	
+  37 0008 0190A0E1 		mov r9, r1			@ R9 = @*Longitud
+  38 000c 0040D9E5 		ldrb r4, [r9]		@ R4 = Longitud (tambien podriamos usar -> mov r4, #0 ya que la funcion
+  39              							@ actualizar_tablero siempre invoca a patron_volteo con longitud = 0 y ahorrar un acceso)
+  40 0010 74509FE5 		ldr r5, =posicion_valida @ DIR_POS_VAL
+  41 0014 2C70DDE5 		ldrb r7, [sp, #44]	@ r7 = COLOR
+  42 0018 0260A0E1 		mov r6, r2			@ r6 guarda el valor de FA actualizado
+  43 001c 0380A0E1 		mov r8, r3			@ r8 guarda el valor de CA actualizado
+  44 0020 00A0A0E1 		mov r10, r0			@ r10 = TABLERO
+  45              	
+  46              	while:
+  47 0024 D412DDE1 		ldrsb r1, [sp, #36]	@ r1 = SF
+  48 0028 016086E0 		add r6, r6, r1 		@ r6 = FA = FA + SF
+  49 002c 0610A0E1 		mov r1, r6			@ r1 = FA
+  50              	
+  51 0030 D822DDE1 		ldrsb r2, [sp, #40]	@ r2 = SC
+  52 0034 028088E0 		add r8, r8, r2 		@ r8 = CA = CA + SC
+  53 0038 0820A0E1 		mov r2, r8			@ r2 = CA
+  54              	
+  55 003c 0530A0E1 		mov r3,r5			@ r3 = @POSICION_VALIDA
+  56              	
+  57 0040 FEFFFFEB 		bl ficha_valida
+  58              	
+  59              		@ R0 = CASILLA (ficha_valida ha machacado el valor de TABLERO)
+  60 0044 0010D5E5 		ldrb r1,[r5]	@ r1 = POSICION_VALIDA
+  61              	
+  62 0048 010051E3 		cmp r1, #1		@ posicion_valida == 1
+  63 004c 0300001A 		bne if
+  64              	
+  65 0050 070050E1 		cmp r0, r7		@ casilla != color
+  66 0054 01408412 		addne r4, r4, #1	@ longitud++
+  67 0058 0A00A011 		movne r0, r10 	@ hay que actualizar el valor de r0 con el de TABLERO
+  68              	
+  69 005c F0FFFF1A 		bne while
+  70              	
+  71              	if:
+  72 0060 010051E3 		cmp r1, #1		@ posicion_valida == 1
+  73 0064 0400001A 		bne else
+  74              	
+  75 0068 070050E1 		cmp r0, r7		@ casilla == color
+  76 006c 0200001A 		bne else
+  77              	
+  78 0070 000054E3 		cmp r4, #0		@ *longitud >0
+  79 0074 0100A0C3 		movgt r0, #PATRON_ENCONTRADO
+  80 0078 000000CA 		bgt fin
+  81              	
+  82              	else:
+  83 007c 0000A0E3 		mov r0, #NO_HAY_PATRON
+  84              		
+  85              	fin:
+  86 0080 0040C9E5 		strb r4,[r9] @ actualizamos el valor de longitud
+  87              	
+  88 0084 F04FBDE8 		pop {r4-r10,fp,lr}
+  89 0088 1EFF2FE1 		bx lr
+  89      00000000 
+DEFINED SYMBOLS
+../patron_volteo_arm_c.asm:9      .text:00000004 patron_volteo_arm_c
+../patron_volteo_arm_c.asm:4      .text:00000000 posicion_valida
+../patron_volteo_arm_c.asm:4      .text:00000000 $d
+../patron_volteo_arm_c.asm:6      *ABS*:00000001 PATRON_ENCONTRADO
+../patron_volteo_arm_c.asm:7      *ABS*:00000000 NO_HAY_PATRON
+../patron_volteo_arm_c.asm:12     .text:00000004 $a
+../patron_volteo_arm_c.asm:46     .text:00000024 while
+../patron_volteo_arm_c.asm:71     .text:00000060 if
+../patron_volteo_arm_c.asm:82     .text:0000007c else
+../patron_volteo_arm_c.asm:85     .text:00000080 fin
+../patron_volteo_arm_c.asm:89     .text:0000008c $d
+                   .debug_aranges:0000000c $d
+
+UNDEFINED SYMBOLS
+ficha_valida

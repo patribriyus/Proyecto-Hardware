@@ -1,0 +1,388 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"jugada.c"
+  21              	.Ltext0:
+  22              		.file 1 "../jugada.c"
+ 1234              	estado_actual:
+ 1235 0000 00       		.space	1
+ 1236              	boton_actual:
+ 1237 0001 00       		.space	1
+ 1238              		.text
+ 1239              		.align	2
+ 1240              		.global	jugada_init
+ 1242              	jugada_init:
+ 1243              	.LFB0:
+   1:../jugada.c   **** #include "botones_antirebotes.h"
+   2:../jugada.c   **** #include "8led.h"
+   3:../jugada.c   **** #include "button.h"
+   4:../jugada.c   **** #include "stdint.h"
+   5:../jugada.c   **** 
+   6:../jugada.c   **** 
+   7:../jugada.c   **** /*--------------------------------------------------------------*/
+   8:../jugada.c   **** 
+   9:../jugada.c   **** enum estado_jugada
+  10:../jugada.c   **** {
+  11:../jugada.c   ****     EST_COMIENZO_F,
+  12:../jugada.c   ****     EST_SELECT_F,
+  13:../jugada.c   ****     EST_COMIENZO_C,
+  14:../jugada.c   ****     EST_SELECT_C,
+  15:../jugada.c   **** };
+  16:../jugada.c   **** 
+  17:../jugada.c   **** static volatile enum estado_jugada estado_actual;
+  18:../jugada.c   **** static volatile enum estado_button boton_actual;
+  19:../jugada.c   **** 
+  20:../jugada.c   **** void jugada_init() {
+ 1244              		.loc 1 20 0
+ 1245              		.cfi_startproc
+ 1246              		@ Function supports interworking.
+ 1247              		@ args = 0, pretend = 0, frame = 0
+ 1248              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1249 0000 0DC0A0E1 		mov	ip, sp
+ 1250              	.LCFI0:
+ 1251              		.cfi_def_cfa_register 12
+ 1252 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1253 0008 04B04CE2 		sub	fp, ip, #4
+ 1254              		.cfi_offset 14, -8
+ 1255              		.cfi_offset 13, -12
+ 1256              		.cfi_offset 11, -16
+ 1257              	.LCFI1:
+ 1258              		.cfi_def_cfa 11, 4
+  21:../jugada.c   **** 	estado_actual = EST_COMIENZO_F;
+ 1259              		.loc 1 21 0
+ 1260 000c 18309FE5 		ldr	r3, .L2
+ 1261 0010 0020A0E3 		mov	r2, #0
+ 1262 0014 0020C3E5 		strb	r2, [r3, #0]
+  22:../jugada.c   **** 	D8Led_symbol(15); // F
+ 1263              		.loc 1 22 0
+ 1264 0018 0F00A0E3 		mov	r0, #15
+ 1265 001c FEFFFFEB 		bl	D8Led_symbol
+  23:../jugada.c   **** }
+ 1266              		.loc 1 23 0
+ 1267 0020 0CD04BE2 		sub	sp, fp, #12
+ 1268 0024 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1269 0028 1EFF2FE1 		bx	lr
+ 1270              	.L3:
+ 1271              		.align	2
+ 1272              	.L2:
+ 1273 002c 00000000 		.word	estado_actual
+ 1274              		.cfi_endproc
+ 1275              	.LFE0:
+ 1277              		.align	2
+ 1278              		.global	incrementar
+ 1280              	incrementar:
+ 1281              	.LFB1:
+  24:../jugada.c   **** 
+  25:../jugada.c   **** uint8_t incrementar(uint8_t dato){
+ 1282              		.loc 1 25 0
+ 1283              		.cfi_startproc
+ 1284              		@ Function supports interworking.
+ 1285              		@ args = 0, pretend = 0, frame = 8
+ 1286              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1287 0030 0DC0A0E1 		mov	ip, sp
+ 1288              	.LCFI2:
+ 1289              		.cfi_def_cfa_register 12
+ 1290 0034 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1291 0038 04B04CE2 		sub	fp, ip, #4
+ 1292              		.cfi_offset 14, -8
+ 1293              		.cfi_offset 13, -12
+ 1294              		.cfi_offset 11, -16
+ 1295              	.LCFI3:
+ 1296              		.cfi_def_cfa 11, 4
+ 1297 003c 08D04DE2 		sub	sp, sp, #8
+ 1298 0040 0030A0E1 		mov	r3, r0
+ 1299 0044 0D304BE5 		strb	r3, [fp, #-13]
+  26:../jugada.c   **** 	//dato = (uint8_t)(dato+1u);
+  27:../jugada.c   **** 	dato++;
+ 1300              		.loc 1 27 0
+ 1301 0048 0D305BE5 		ldrb	r3, [fp, #-13]
+ 1302 004c 013083E2 		add	r3, r3, #1
+ 1303 0050 0D304BE5 		strb	r3, [fp, #-13]
+  28:../jugada.c   **** 	if(dato == 9) {
+ 1304              		.loc 1 28 0
+ 1305 0054 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 1306 0058 090053E3 		cmp	r3, #9
+ 1307 005c 0100001A 		bne	.L5
+  29:../jugada.c   **** 		dato = 1;
+ 1308              		.loc 1 29 0
+ 1309 0060 0130A0E3 		mov	r3, #1
+ 1310 0064 0D304BE5 		strb	r3, [fp, #-13]
+ 1311              	.L5:
+  30:../jugada.c   **** 	}
+  31:../jugada.c   **** 
+  32:../jugada.c   **** 	return dato;
+ 1312              		.loc 1 32 0
+ 1313 0068 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+  33:../jugada.c   **** }
+ 1314              		.loc 1 33 0
+ 1315 006c 0300A0E1 		mov	r0, r3
+ 1316 0070 0CD04BE2 		sub	sp, fp, #12
+ 1317 0074 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1318 0078 1EFF2FE1 		bx	lr
+ 1319              		.cfi_endproc
+ 1320              	.LFE1:
+ 1322              		.align	2
+ 1323              		.global	jugada_por_botones
+ 1325              	jugada_por_botones:
+ 1326              	.LFB2:
+  34:../jugada.c   **** 
+  35:../jugada.c   **** void jugada_por_botones(uint8_t* fila, uint8_t* columna, uint8_t* ready) {
+ 1327              		.loc 1 35 0
+ 1328              		.cfi_startproc
+ 1329              		@ Function supports interworking.
+ 1330              		@ args = 0, pretend = 0, frame = 16
+ 1331              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1332 007c 0DC0A0E1 		mov	ip, sp
+ 1333              	.LCFI4:
+ 1334              		.cfi_def_cfa_register 12
+ 1335 0080 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1336 0084 04B04CE2 		sub	fp, ip, #4
+ 1337              		.cfi_offset 14, -8
+ 1338              		.cfi_offset 13, -12
+ 1339              		.cfi_offset 11, -16
+ 1340              	.LCFI5:
+ 1341              		.cfi_def_cfa 11, 4
+ 1342 0088 10D04DE2 		sub	sp, sp, #16
+ 1343 008c 10000BE5 		str	r0, [fp, #-16]
+ 1344 0090 14100BE5 		str	r1, [fp, #-20]
+ 1345 0094 18200BE5 		str	r2, [fp, #-24]
+  36:../jugada.c   **** 	boton_actual = botones_antirebotes_leer();
+ 1346              		.loc 1 36 0
+ 1347 0098 FEFFFFEB 		bl	botones_antirebotes_leer
+ 1348 009c 0030A0E1 		mov	r3, r0
+ 1349 00a0 0320A0E1 		mov	r2, r3
+ 1350 00a4 88319FE5 		ldr	r3, .L23
+ 1351 00a8 0020C3E5 		strb	r2, [r3, #0]
+  37:../jugada.c   **** 	
+  38:../jugada.c   ****     switch (estado_actual) {
+ 1352              		.loc 1 38 0
+ 1353 00ac 84319FE5 		ldr	r3, .L23+4
+ 1354 00b0 0030D3E5 		ldrb	r3, [r3, #0]
+ 1355 00b4 FF3003E2 		and	r3, r3, #255
+ 1356 00b8 030053E3 		cmp	r3, #3
+ 1357 00bc 03F19F97 		ldrls	pc, [pc, r3, asl #2]
+ 1358 00c0 580000EA 		b	.L6
+ 1359              	.L12:
+ 1360 00c4 D4000000 		.word	.L8
+ 1361 00c8 08010000 		.word	.L9
+ 1362 00cc 74010000 		.word	.L10
+ 1363 00d0 A4010000 		.word	.L11
+ 1364              	.L8:
+  39:../jugada.c   **** 		
+  40:../jugada.c   ****     	case EST_COMIENZO_F:
+  41:../jugada.c   **** 		{
+  42:../jugada.c   **** 			if (boton_actual == button_iz) {
+ 1365              		.loc 1 42 0
+ 1366 00d4 58319FE5 		ldr	r3, .L23
+ 1367 00d8 0030D3E5 		ldrb	r3, [r3, #0]
+ 1368 00dc FF3003E2 		and	r3, r3, #255
+ 1369 00e0 010053E3 		cmp	r3, #1
+ 1370 00e4 4800001A 		bne	.L19
+  43:../jugada.c   **** 				D8Led_symbol(*fila); // 1
+ 1371              		.loc 1 43 0
+ 1372 00e8 10301BE5 		ldr	r3, [fp, #-16]
+ 1373 00ec 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1374 00f0 0300A0E1 		mov	r0, r3
+ 1375 00f4 FEFFFFEB 		bl	D8Led_symbol
+  44:../jugada.c   **** 				estado_actual = EST_SELECT_F;
+ 1376              		.loc 1 44 0
+ 1377 00f8 38319FE5 		ldr	r3, .L23+4
+ 1378 00fc 0120A0E3 		mov	r2, #1
+ 1379 0100 0020C3E5 		strb	r2, [r3, #0]
+  45:../jugada.c   **** 			}
+  46:../jugada.c   **** 			break;
+ 1380              		.loc 1 46 0
+ 1381 0104 470000EA 		b	.L6
+ 1382              	.L9:
+  47:../jugada.c   **** 		}
+  48:../jugada.c   **** 		
+  49:../jugada.c   **** 		case EST_SELECT_F: { 
+  50:../jugada.c   **** 			if(boton_antirrebotes_atendido == button_iz){ //incrementar
+ 1383              		.loc 1 50 0
+ 1384 0108 2C319FE5 		ldr	r3, .L23+8
+ 1385 010c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1386 0110 010053E3 		cmp	r3, #1
+ 1387 0114 0C00001A 		bne	.L14
+  51:../jugada.c   **** 				*fila = incrementar(*fila);
+ 1388              		.loc 1 51 0
+ 1389 0118 10301BE5 		ldr	r3, [fp, #-16]
+ 1390 011c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1391 0120 0300A0E1 		mov	r0, r3
+ 1392 0124 FEFFFFEB 		bl	incrementar
+ 1393 0128 0030A0E1 		mov	r3, r0
+ 1394 012c 0320A0E1 		mov	r2, r3
+ 1395 0130 10301BE5 		ldr	r3, [fp, #-16]
+ 1396 0134 0020C3E5 		strb	r2, [r3, #0]
+  52:../jugada.c   **** 				D8Led_symbol(*fila);
+ 1397              		.loc 1 52 0
+ 1398 0138 10301BE5 		ldr	r3, [fp, #-16]
+ 1399 013c 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1400 0140 0300A0E1 		mov	r0, r3
+ 1401 0144 FEFFFFEB 		bl	D8Led_symbol
+  53:../jugada.c   **** 			}
+  54:../jugada.c   **** 		
+  55:../jugada.c   **** 			else if (boton_antirrebotes_atendido == button_dr) { // confirmar
+  56:../jugada.c   **** 				D8Led_symbol(12); // C
+  57:../jugada.c   **** 				estado_actual = EST_COMIENZO_C;
+  58:../jugada.c   **** 			}
+  59:../jugada.c   **** 			break;
+ 1402              		.loc 1 59 0
+ 1403 0148 360000EA 		b	.L6
+ 1404              	.L14:
+  55:../jugada.c   **** 			else if (boton_antirrebotes_atendido == button_dr) { // confirmar
+ 1405              		.loc 1 55 0
+ 1406 014c E8309FE5 		ldr	r3, .L23+8
+ 1407 0150 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1408 0154 020053E3 		cmp	r3, #2
+ 1409 0158 2D00001A 		bne	.L20
+  56:../jugada.c   **** 				D8Led_symbol(12); // C
+ 1410              		.loc 1 56 0
+ 1411 015c 0C00A0E3 		mov	r0, #12
+ 1412 0160 FEFFFFEB 		bl	D8Led_symbol
+  57:../jugada.c   **** 				estado_actual = EST_COMIENZO_C;
+ 1413              		.loc 1 57 0
+ 1414 0164 CC309FE5 		ldr	r3, .L23+4
+ 1415 0168 0220A0E3 		mov	r2, #2
+ 1416 016c 0020C3E5 		strb	r2, [r3, #0]
+ 1417              		.loc 1 59 0
+ 1418 0170 2C0000EA 		b	.L6
+ 1419              	.L10:
+  60:../jugada.c   **** 		}
+  61:../jugada.c   **** 		
+  62:../jugada.c   **** 		case EST_COMIENZO_C: {
+  63:../jugada.c   **** 			if (boton_antirrebotes_atendido == button_iz) {
+ 1420              		.loc 1 63 0
+ 1421 0174 C0309FE5 		ldr	r3, .L23+8
+ 1422 0178 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1423 017c 010053E3 		cmp	r3, #1
+ 1424 0180 2500001A 		bne	.L21
+  64:../jugada.c   **** 				D8Led_symbol(*columna); // 1
+ 1425              		.loc 1 64 0
+ 1426 0184 14301BE5 		ldr	r3, [fp, #-20]
+ 1427 0188 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1428 018c 0300A0E1 		mov	r0, r3
+ 1429 0190 FEFFFFEB 		bl	D8Led_symbol
+  65:../jugada.c   **** 				estado_actual = EST_SELECT_C;
+ 1430              		.loc 1 65 0
+ 1431 0194 9C309FE5 		ldr	r3, .L23+4
+ 1432 0198 0320A0E3 		mov	r2, #3
+ 1433 019c 0020C3E5 		strb	r2, [r3, #0]
+  66:../jugada.c   **** 			}
+  67:../jugada.c   **** 			break;
+ 1434              		.loc 1 67 0
+ 1435 01a0 200000EA 		b	.L6
+ 1436              	.L11:
+  68:../jugada.c   **** 		}
+  69:../jugada.c   **** 		
+  70:../jugada.c   **** 		case EST_SELECT_C:
+  71:../jugada.c   **** 		{
+  72:../jugada.c   **** 			if(boton_antirrebotes_atendido == button_iz){ //incrementar
+ 1437              		.loc 1 72 0
+ 1438 01a4 90309FE5 		ldr	r3, .L23+8
+ 1439 01a8 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1440 01ac 010053E3 		cmp	r3, #1
+ 1441 01b0 0C00001A 		bne	.L17
+  73:../jugada.c   **** 				*columna = incrementar(*columna);
+ 1442              		.loc 1 73 0
+ 1443 01b4 14301BE5 		ldr	r3, [fp, #-20]
+ 1444 01b8 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1445 01bc 0300A0E1 		mov	r0, r3
+ 1446 01c0 FEFFFFEB 		bl	incrementar
+ 1447 01c4 0030A0E1 		mov	r3, r0
+ 1448 01c8 0320A0E1 		mov	r2, r3
+ 1449 01cc 14301BE5 		ldr	r3, [fp, #-20]
+ 1450 01d0 0020C3E5 		strb	r2, [r3, #0]
+  74:../jugada.c   **** 				D8Led_symbol(*columna);
+ 1451              		.loc 1 74 0
+ 1452 01d4 14301BE5 		ldr	r3, [fp, #-20]
+ 1453 01d8 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1454 01dc 0300A0E1 		mov	r0, r3
+ 1455 01e0 FEFFFFEB 		bl	D8Led_symbol
+  75:../jugada.c   **** 			}
+  76:../jugada.c   **** 		
+  77:../jugada.c   **** 			else if (boton_antirrebotes_atendido == button_dr) { // confirmar
+  78:../jugada.c   **** 				*ready = 1;
+  79:../jugada.c   **** 				jugada_init();
+  80:../jugada.c   **** 			}
+  81:../jugada.c   **** 			break;
+ 1456              		.loc 1 81 0
+ 1457 01e4 0F0000EA 		b	.L6
+ 1458              	.L17:
+  77:../jugada.c   **** 			else if (boton_antirrebotes_atendido == button_dr) { // confirmar
+ 1459              		.loc 1 77 0
+ 1460 01e8 4C309FE5 		ldr	r3, .L23+8
+ 1461 01ec 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1462 01f0 020053E3 		cmp	r3, #2
+ 1463 01f4 0A00001A 		bne	.L22
+  78:../jugada.c   **** 				*ready = 1;
+ 1464              		.loc 1 78 0
+ 1465 01f8 18301BE5 		ldr	r3, [fp, #-24]
+ 1466 01fc 0120A0E3 		mov	r2, #1
+ 1467 0200 0020C3E5 		strb	r2, [r3, #0]
+  79:../jugada.c   **** 				jugada_init();
+ 1468              		.loc 1 79 0
+ 1469 0204 FEFFFFEB 		bl	jugada_init
+ 1470              		.loc 1 81 0
+ 1471 0208 060000EA 		b	.L6
+ 1472              	.L19:
+  46:../jugada.c   **** 			break;
+ 1473              		.loc 1 46 0
+ 1474 020c 0000A0E1 		mov	r0, r0	@ nop
+ 1475 0210 040000EA 		b	.L6
+ 1476              	.L20:
+  59:../jugada.c   **** 			break;
+ 1477              		.loc 1 59 0
+ 1478 0214 0000A0E1 		mov	r0, r0	@ nop
+ 1479 0218 020000EA 		b	.L6
+ 1480              	.L21:
+  67:../jugada.c   **** 			break;
+ 1481              		.loc 1 67 0
+ 1482 021c 0000A0E1 		mov	r0, r0	@ nop
+ 1483 0220 000000EA 		b	.L6
+ 1484              	.L22:
+ 1485              		.loc 1 81 0
+ 1486 0224 0000A0E1 		mov	r0, r0	@ nop
+ 1487              	.L6:
+  82:../jugada.c   **** 		}
+  83:../jugada.c   ****     }
+  84:../jugada.c   **** }
+ 1488              		.loc 1 84 0
+ 1489 0228 0CD04BE2 		sub	sp, fp, #12
+ 1490 022c 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1491 0230 1EFF2FE1 		bx	lr
+ 1492              	.L24:
+ 1493              		.align	2
+ 1494              	.L23:
+ 1495 0234 01000000 		.word	boton_actual
+ 1496 0238 00000000 		.word	estado_actual
+ 1497 023c 00000000 		.word	boton_antirrebotes_atendido
+ 1498              		.cfi_endproc
+ 1499              	.LFE2:
+ 1501              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 jugada.c
+                            *COM*:00000001 boton_antirrebotes_atendido
+C:\Users\danie\AppData\Local\Temp\cc4DekhN.s:1234   .bss:00000000 estado_actual
+C:\Users\danie\AppData\Local\Temp\cc4DekhN.s:1235   .bss:00000000 $d
+C:\Users\danie\AppData\Local\Temp\cc4DekhN.s:1236   .bss:00000001 boton_actual
+C:\Users\danie\AppData\Local\Temp\cc4DekhN.s:1239   .text:00000000 $a
+C:\Users\danie\AppData\Local\Temp\cc4DekhN.s:1242   .text:00000000 jugada_init
+C:\Users\danie\AppData\Local\Temp\cc4DekhN.s:1273   .text:0000002c $d
+C:\Users\danie\AppData\Local\Temp\cc4DekhN.s:1277   .text:00000030 $a
+C:\Users\danie\AppData\Local\Temp\cc4DekhN.s:1280   .text:00000030 incrementar
+C:\Users\danie\AppData\Local\Temp\cc4DekhN.s:1325   .text:0000007c jugada_por_botones
+C:\Users\danie\AppData\Local\Temp\cc4DekhN.s:1360   .text:000000c4 $d
+C:\Users\danie\AppData\Local\Temp\cc4DekhN.s:1366   .text:000000d4 $a
+C:\Users\danie\AppData\Local\Temp\cc4DekhN.s:1495   .text:00000234 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+D8Led_symbol
+botones_antirebotes_leer

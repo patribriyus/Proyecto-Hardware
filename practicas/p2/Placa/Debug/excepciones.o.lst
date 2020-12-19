@@ -1,0 +1,264 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"excepciones.c"
+  21              	.Ltext0:
+  22              		.file 1 "../excepciones.c"
+ 2142              		.align	2
+ 2143              	interrupcion:
+ 2144 0000 00000000 		.space	4
+ 2145              		.align	2
+ 2146              	direccion_excepcion:
+ 2147 0004 00000000 		.space	4
+ 2148              		.text
+ 2149              		.align	2
+ 2150              		.global	definir_rutinas
+ 2152              	definir_rutinas:
+ 2153              	.LFB0:
+   1:../excepciones.c **** /*********************************************************************************************
+   2:../excepciones.c **** * Fichero:		excepciones.c
+   3:../excepciones.c **** * Autor:
+   4:../excepciones.c **** * Descrip:		funciones de control del timer0 del s3c44b0x
+   5:../excepciones.c **** * Version:
+   6:../excepciones.c **** *********************************************************************************************/
+   7:../excepciones.c **** 
+   8:../excepciones.c **** /*--- Ficheros de cabecera ---*/
+   9:../excepciones.c **** 
+  10:../excepciones.c **** #include <stdint.h>
+  11:../excepciones.c **** #include "44b.h"
+  12:../excepciones.c **** #include "44blib.h"
+  13:../excepciones.c **** 
+  14:../excepciones.c **** #define INIT 0x0
+  15:../excepciones.c **** #define SWI 0x13
+  16:../excepciones.c **** #define ABT 0x17
+  17:../excepciones.c **** #define UND 0x1B
+  18:../excepciones.c **** 
+  19:../excepciones.c **** #define SWI_8LED 1
+  20:../excepciones.c **** #define ABT_8LED 2
+  21:../excepciones.c **** #define UND_8LED 3
+  22:../excepciones.c **** #define BLANK_8LED 16
+  23:../excepciones.c **** 
+  24:../excepciones.c **** #define DELAY_MS 50000
+  25:../excepciones.c **** 
+  26:../excepciones.c **** // VARIABLES GLOBALES
+  27:../excepciones.c **** static volatile uint32_t interrupcion; // Volatile!!
+  28:../excepciones.c **** static volatile uint32_t direccion_excepcion; // Dirección de la instrucción que causa la excepción
+  29:../excepciones.c **** 
+  30:../excepciones.c **** /* !¿Esto hace falta?!
+  31:../excepciones.c **** void tratamiento_exc(void) __attribute__((interrupt("SWI")));
+  32:../excepciones.c **** void tratamiento_exc(void) __attribute__((interrupt("DABORT"))); // SOLO FIQ, IRQ
+  33:../excepciones.c **** void tratamiento_exc(void) __attribute__((interrupt("UNDEF")));
+  34:../excepciones.c **** 
+  35:../excepciones.c **** */
+  36:../excepciones.c **** 
+  37:../excepciones.c **** void tratamiento_exc(void);
+  38:../excepciones.c **** 
+  39:../excepciones.c **** void definir_rutinas(void) {
+ 2154              		.loc 1 39 0
+ 2155              		.cfi_startproc
+ 2156              		@ Function supports interworking.
+ 2157              		@ args = 0, pretend = 0, frame = 0
+ 2158              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2159 0000 0DC0A0E1 		mov	ip, sp
+ 2160              	.LCFI0:
+ 2161              		.cfi_def_cfa_register 12
+ 2162 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2163 0008 04B04CE2 		sub	fp, ip, #4
+ 2164              		.cfi_offset 14, -8
+ 2165              		.cfi_offset 13, -12
+ 2166              		.cfi_offset 11, -16
+ 2167              	.LCFI1:
+ 2168              		.cfi_def_cfa 11, 4
+  40:../excepciones.c ****     pISR_UNDEF 	= (unsigned)tratamiento_exc; // Unsigned!!??
+ 2169              		.loc 1 40 0
+ 2170 000c 28309FE5 		ldr	r3, .L2
+ 2171 0010 28209FE5 		ldr	r2, .L2+4
+ 2172 0014 002083E5 		str	r2, [r3, #0]
+  41:../excepciones.c ****     pISR_SWI 	= (unsigned)tratamiento_exc;
+ 2173              		.loc 1 41 0
+ 2174 0018 24309FE5 		ldr	r3, .L2+8
+ 2175 001c 1C209FE5 		ldr	r2, .L2+4
+ 2176 0020 002083E5 		str	r2, [r3, #0]
+  42:../excepciones.c ****     pISR_DABORT = (unsigned)tratamiento_exc;
+ 2177              		.loc 1 42 0
+ 2178 0024 1C309FE5 		ldr	r3, .L2+12
+ 2179 0028 10209FE5 		ldr	r2, .L2+4
+ 2180 002c 002083E5 		str	r2, [r3, #0]
+  43:../excepciones.c **** }
+ 2181              		.loc 1 43 0
+ 2182 0030 0CD04BE2 		sub	sp, fp, #12
+ 2183 0034 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 2184 0038 1EFF2FE1 		bx	lr
+ 2185              	.L3:
+ 2186              		.align	2
+ 2187              	.L2:
+ 2188 003c 04FF7F0C 		.word	209714948
+ 2189 0040 00000000 		.word	tratamiento_exc
+ 2190 0044 08FF7F0C 		.word	209714952
+ 2191 0048 10FF7F0C 		.word	209714960
+ 2192              		.cfi_endproc
+ 2193              	.LFE0:
+ 2195              		.align	2
+ 2196              		.global	tratamiento_exc
+ 2198              	tratamiento_exc:
+ 2199              	.LFB1:
+  44:../excepciones.c **** 
+  45:../excepciones.c **** void tratamiento_exc(void) {
+ 2200              		.loc 1 45 0
+ 2201              		.cfi_startproc
+ 2202              		@ Function supports interworking.
+ 2203              		@ args = 0, pretend = 0, frame = 8
+ 2204              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2205 004c 0DC0A0E1 		mov	ip, sp
+ 2206              	.LCFI2:
+ 2207              		.cfi_def_cfa_register 12
+ 2208 0050 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 2209 0054 04B04CE2 		sub	fp, ip, #4
+ 2210              		.cfi_offset 14, -8
+ 2211              		.cfi_offset 13, -12
+ 2212              		.cfi_offset 11, -16
+ 2213              	.LCFI3:
+ 2214              		.cfi_def_cfa 11, 4
+ 2215 0058 08D04DE2 		sub	sp, sp, #8
+  46:../excepciones.c **** 	int n_led;
+  47:../excepciones.c ****     __asm__ volatile("mrs %0, cpsr\n" // Comprobar
+ 2216              		.loc 1 47 0
+ 2217 005c D4309FE5 		ldr	r3, .L9
+ 2218 0060 003093E5 		ldr	r3, [r3, #0]
+ 2219              	@ 47 "../excepciones.c" 1
+ 2220 0064 00300FE1 		mrs r3, cpsr
+ 2221 0068 1F3003E2 	and r3, r3, #0x1F
+ 2222              	@ 0 "" 2
+ 2223 006c C4209FE5 		ldr	r2, .L9
+ 2224 0070 003082E5 		str	r3, [r2, #0]
+  48:../excepciones.c ****     				 "and %0, %0, #0x1F"
+  49:../excepciones.c ****                      : "+r"(interrupcion)); // R: La variable reside en un registro
+  50:../excepciones.c ****     										// +: See lee y modifica
+  51:../excepciones.c ****     __asm__ volatile("mov %0, lr" : "=r"(direccion_excepcion)); // = Sobreescribe el valor
+ 2225              		.loc 1 51 0
+ 2226              	@ 51 "../excepciones.c" 1
+ 2227 0074 0E20A0E1 		mov r2, lr
+ 2228              	@ 0 "" 2
+ 2229 0078 BC309FE5 		ldr	r3, .L9+4
+ 2230 007c 002083E5 		str	r2, [r3, #0]
+  52:../excepciones.c **** 
+  53:../excepciones.c ****     // http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0311d/I30195.html
+  54:../excepciones.c ****     if (interrupcion == SWI) {
+ 2231              		.loc 1 54 0
+ 2232 0080 B0309FE5 		ldr	r3, .L9
+ 2233 0084 003093E5 		ldr	r3, [r3, #0]
+ 2234 0088 130053E3 		cmp	r3, #19
+ 2235 008c 0700001A 		bne	.L5
+  55:../excepciones.c ****     	direccion_excepcion -= 4;
+ 2236              		.loc 1 55 0
+ 2237 0090 A4309FE5 		ldr	r3, .L9+4
+ 2238 0094 003093E5 		ldr	r3, [r3, #0]
+ 2239 0098 042043E2 		sub	r2, r3, #4
+ 2240 009c 98309FE5 		ldr	r3, .L9+4
+ 2241 00a0 002083E5 		str	r2, [r3, #0]
+  56:../excepciones.c ****     	n_led = SWI_8LED;
+ 2242              		.loc 1 56 0
+ 2243 00a4 0130A0E3 		mov	r3, #1
+ 2244 00a8 10300BE5 		str	r3, [fp, #-16]
+ 2245 00ac 180000EA 		b	.L6
+ 2246              	.L5:
+  57:../excepciones.c ****     } else if (interrupcion == ABT) {
+ 2247              		.loc 1 57 0
+ 2248 00b0 80309FE5 		ldr	r3, .L9
+ 2249 00b4 003093E5 		ldr	r3, [r3, #0]
+ 2250 00b8 170053E3 		cmp	r3, #23
+ 2251 00bc 0700001A 		bne	.L7
+  58:../excepciones.c ****     	direccion_excepcion -= 8;
+ 2252              		.loc 1 58 0
+ 2253 00c0 74309FE5 		ldr	r3, .L9+4
+ 2254 00c4 003093E5 		ldr	r3, [r3, #0]
+ 2255 00c8 082043E2 		sub	r2, r3, #8
+ 2256 00cc 68309FE5 		ldr	r3, .L9+4
+ 2257 00d0 002083E5 		str	r2, [r3, #0]
+  59:../excepciones.c ****     	n_led = ABT_8LED;
+ 2258              		.loc 1 59 0
+ 2259 00d4 0230A0E3 		mov	r3, #2
+ 2260 00d8 10300BE5 		str	r3, [fp, #-16]
+ 2261 00dc 0C0000EA 		b	.L6
+ 2262              	.L7:
+  60:../excepciones.c ****     } else if (interrupcion == UND) {
+ 2263              		.loc 1 60 0
+ 2264 00e0 50309FE5 		ldr	r3, .L9
+ 2265 00e4 003093E5 		ldr	r3, [r3, #0]
+ 2266 00e8 1B0053E3 		cmp	r3, #27
+ 2267 00ec 0700001A 		bne	.L8
+  61:../excepciones.c ****     	direccion_excepcion -= 4;
+ 2268              		.loc 1 61 0
+ 2269 00f0 44309FE5 		ldr	r3, .L9+4
+ 2270 00f4 003093E5 		ldr	r3, [r3, #0]
+ 2271 00f8 042043E2 		sub	r2, r3, #4
+ 2272 00fc 38309FE5 		ldr	r3, .L9+4
+ 2273 0100 002083E5 		str	r2, [r3, #0]
+  62:../excepciones.c ****     	n_led = UND_8LED;
+ 2274              		.loc 1 62 0
+ 2275 0104 0330A0E3 		mov	r3, #3
+ 2276 0108 10300BE5 		str	r3, [fp, #-16]
+ 2277 010c 000000EA 		b	.L6
+ 2278              	.L8:
+  63:../excepciones.c ****     } else { // Debug
+  64:../excepciones.c ****     	 while(1);
+ 2279              		.loc 1 64 0 discriminator 1
+ 2280 0110 FEFFFFEA 		b	.L8
+ 2281              	.L6:
+ 2282              	.LBB2:
+  65:../excepciones.c ****     }
+  66:../excepciones.c **** 
+  67:../excepciones.c ****     while (1)
+  68:../excepciones.c ****         {
+  69:../excepciones.c ****             D8Led_symbol(n_led);
+ 2283              		.loc 1 69 0 discriminator 1
+ 2284 0114 10001BE5 		ldr	r0, [fp, #-16]
+ 2285 0118 FEFFFFEB 		bl	D8Led_symbol
+  70:../excepciones.c ****             Delay(DELAY_MS);
+ 2286              		.loc 1 70 0 discriminator 1
+ 2287 011c 1C009FE5 		ldr	r0, .L9+8
+ 2288 0120 FEFFFFEB 		bl	Delay
+  71:../excepciones.c ****             D8Led_symbol(BLANK_8LED);
+ 2289              		.loc 1 71 0 discriminator 1
+ 2290 0124 1000A0E3 		mov	r0, #16
+ 2291 0128 FEFFFFEB 		bl	D8Led_symbol
+  72:../excepciones.c ****             Delay(DELAY_MS);
+ 2292              		.loc 1 72 0 discriminator 1
+ 2293 012c 0C009FE5 		ldr	r0, .L9+8
+ 2294 0130 FEFFFFEB 		bl	Delay
+ 2295              	.LBE2:
+  73:../excepciones.c ****         }
+ 2296              		.loc 1 73 0 discriminator 1
+ 2297 0134 F6FFFFEA 		b	.L6
+ 2298              	.L10:
+ 2299              		.align	2
+ 2300              	.L9:
+ 2301 0138 00000000 		.word	interrupcion
+ 2302 013c 04000000 		.word	direccion_excepcion
+ 2303 0140 50C30000 		.word	50000
+ 2304              		.cfi_endproc
+ 2305              	.LFE1:
+ 2307              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 excepciones.c
+C:\Users\danie\AppData\Local\Temp\ccBiCGXc.s:2142   .bss:00000000 $d
+C:\Users\danie\AppData\Local\Temp\ccBiCGXc.s:2143   .bss:00000000 interrupcion
+C:\Users\danie\AppData\Local\Temp\ccBiCGXc.s:2146   .bss:00000004 direccion_excepcion
+C:\Users\danie\AppData\Local\Temp\ccBiCGXc.s:2149   .text:00000000 $a
+C:\Users\danie\AppData\Local\Temp\ccBiCGXc.s:2152   .text:00000000 definir_rutinas
+C:\Users\danie\AppData\Local\Temp\ccBiCGXc.s:2188   .text:0000003c $d
+C:\Users\danie\AppData\Local\Temp\ccBiCGXc.s:2198   .text:0000004c tratamiento_exc
+C:\Users\danie\AppData\Local\Temp\ccBiCGXc.s:2195   .text:0000004c $a
+C:\Users\danie\AppData\Local\Temp\ccBiCGXc.s:2301   .text:00000138 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+D8Led_symbol
+Delay
